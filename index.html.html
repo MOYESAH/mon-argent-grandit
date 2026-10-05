@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mon argent grandit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Karla:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --fond:#FBF6EC; --encre:#2A2520; --doux:#7A6F60;
+  --or:#E2A33C; --vert:#4E7A4A; --rouge:#B5503F; --bleu:#2F5E7E;
+  --carte:#FFFFFF; --trait:#E8DECC;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --fond:#1A1713; --encre:#F2EADC; --doux:#A79A87;
+    --carte:#241F1A; --trait:#3A332B;
+  }
+}
+:root[data-theme="dark"]{
+  --fond:#1A1713; --encre:#F2EADC; --doux:#A79A87;
+  --carte:#241F1A; --trait:#3A332B;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; background:var(--fond); color:var(--encre);
+  font-family:Karla,system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.enveloppe{max-width:680px;margin:0 auto;padding:22px 18px 70px}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:700;line-height:1.2;margin:0}
+h1{font-size:30px}
+h2{font-size:22px;margin:26px 0 10px}
+h3{font-size:17px;margin:0 0 6px}
+p{margin:0 0 12px}
+a{color:var(--bleu)}
+.doux{color:var(--doux)}
+.petit{font-size:13.5px}
+.carte{background:var(--carte);border:1px solid var(--trait);border-radius:14px;padding:18px;margin:14px 0}
+button{font-family:inherit;font-size:15px;cursor:pointer;border:0;border-radius:11px;padding:12px 18px;background:var(--or);color:#2A2520;font-weight:700}
+button.sobre{background:transparent;color:var(--bleu);border:1px solid var(--trait);font-weight:600}
+button:disabled{opacity:.45;cursor:default}
+input,select{font-family:inherit;font-size:16px;padding:11px 13px;border:1px solid var(--trait);border-radius:10px;background:var(--fond);color:var(--encre);width:100%}
+label{display:block;font-size:13.5px;color:var(--doux);margin:12px 0 5px}
+.rangee{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.rangee>*{flex:1 1 auto}
+.ruban{display:flex;gap:7px;overflow-x:auto;padding:4px 0 10px;-webkit-overflow-scrolling:touch}
+.ruban button{flex:0 0 auto;padding:9px 14px;font-size:14px;background:var(--carte);color:var(--doux);border:1px solid var(--trait);font-weight:600}
+.ruban button[aria-selected="true"]{background:var(--or);color:#2A2520;border-color:var(--or)}
+.chiffre{font-family:Fraunces,Georgia,serif;font-size:34px;font-weight:700;letter-spacing:-.5px}
+.vert{color:var(--vert)} .rouge{color:var(--rouge)} .or{color:var(--or)}
+.jauge{height:9px;background:rgba(127,127,127,.18);border-radius:5px;overflow:hidden}
+.jauge span{display:block;height:100%;background:var(--or);border-radius:5px;transition:width .5s}
+.pastille{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(226,163,60,.18);color:var(--or)}
+.liste{list-style:none;padding:0;margin:0}
+.liste li{padding:11px 0;border-bottom:1px solid var(--trait)}
+.liste li:last-child{border-bottom:0}
+.quiz button{display:block;width:100%;text-align:left;background:var(--fond);color:var(--encre);border:1px solid var(--trait);font-weight:600;margin:8px 0;padding:13px 15px}
+.quiz button.bon{background:rgba(78,122,74,.16);border-color:var(--vert)}
+.quiz button.faux{background:rgba(181,80,63,.14);border-color:var(--rouge)}
+.barre{position:fixed;left:0;right:0;bottom:0;background:var(--carte);border-top:1px solid var(--trait);
+  display:flex;padding-bottom:env(safe-area-inset-bottom,0px)}
+.barre button{flex:1;background:transparent;color:var(--doux);border-radius:0;padding:13px 4px;font-size:12.5px;font-weight:600}
+.barre button[aria-selected="true"]{color:var(--or)}
+.barre em{display:block;font-size:19px;font-style:normal;margin-bottom:2px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td{padding:7px 0;border-bottom:1px solid var(--trait)}
+td:last-child{text-align:right;font-weight:600}
+svg{max-width:100%;height:auto}
+.masque{display:none}
+</style>
+</head>
+<body>
+<div class="enveloppe">
+  <header style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+    <h1>Mon argent grandit</h1>
+    <button class="sobre" id="btnTheme" style="flex:0 0 auto;padding:7px 11px;font-size:13px">◐</button>
+  </header>
+  <p class="doux petit" id="accroche">Comprendre l'argent, l'épargne et la bourse. Pas à pas.</p>
+
+  <!-- ===== ACCUEIL ===== -->
+  <section id="vue-accueil">
+    <div class="carte" id="carteBienvenue">
+      <h3>On commence par faire connaissance</h3>
+      <label for="prenom">Ton prénom</label>
+      <input id="prenom" placeholder="ex. Marie" autocomplete="off">
+      <label for="age">Ton âge</label>
+      <input id="age" type="number" min="6" max="25" placeholder="ex. 10">
+      <div style="margin-top:16px"><button id="btnDemarrer">C'est parti</button></div>
+    </div>
+    <div class="carte masque" id="carteProgres">
+      <div class="rangee" style="align-items:flex-end">
+        <div>
+          <h3 id="salut">Salut</h3>
+          <p class="doux petit" style="margin:0" id="niveauTexte"></p>
+        </div>
+        <div style="flex:0 0 auto"><span class="pastille" id="badge">Niveau 1</span></div>
+      </div>
+      <div style="margin-top:14px" class="jauge"><span id="jaugeProgres" style="width:0%"></span></div>
+      <p class="doux petit" style="margin:7px 0 0" id="progresTexte"></p>
+    </div>
+    <div class="carte">
+      <h3>Pourquoi c'est important</h3>
+      <p>L'argent que tu reçois aujourd'hui peut faire deux choses. Il peut partir
+         tout de suite, et il n'en reste rien. Ou il peut travailler pour toi,
+         et grandir pendant que tu fais autre chose.</p>
+      <p class="doux petit" style="margin:0">Cette application t'apprend la deuxième.
+         Ce n'est pas un jeu : tout ce qu'elle raconte existe vraiment, à la Bourse
+         Régionale des Valeurs Mobilières, à Abidjan.</p>
+    </div>
+    <div class="carte" style="background:transparent;border-style:dashed">
+      <p class="doux petit" style="margin:0">
+        Application pensée par <strong>MOYESAH Group</strong> et développée
+        avec l'appui de <strong>Claude AI</strong>.
+      </p>
+      <p class="doux petit" style="margin:6px 0 0">
+        Une remarque, une idée, une erreur à signaler :
+        <a href="mailto:saouren@gmail.com">saouren@gmail.com</a>
+      </p>
+      <p class="doux petit" style="margin:6px 0 0">
+        Ce que tu notes dans le carnet reste sur ton téléphone. Rien n'est
+        envoyé ailleurs, personne d'autre ne le voit. Si tes parents t'ont
+        donné une adresse de suivi, seuls ton prénom, tes leçons validées et
+        tes totaux leur sont transmis. Jamais le détail de tes lignes.
+      </p>
+      <p class="doux petit" style="margin:10px 0 0">
+        <button class="sobre" id="btnReglages" style="padding:7px 12px;font-size:13px">Réglages</button>
+      </p>
+      <div id="zoneReglages" class="masque" style="margin-top:12px">
+        <label for="codeEnfant">Ton code personnel</label>
+        <input id="codeEnfant" placeholder="ex. marie2026" autocomplete="off">
+        <label for="urlSuivi">Adresse de suivi (donnée par tes parents)</label>
+        <input id="urlSuivi" placeholder="https://script.google.com/.../exec">
+        <div style="margin-top:12px" class="rangee">
+          <button id="btnEnregistrerReglages">Enregistrer</button>
+          <button class="sobre" id="btnEnvoyer" style="flex:0 0 auto">Envoyer ma progression</button>
+        </div>
+        <p class="doux petit" id="etatSuivi" style="margin:10px 0 0"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== LEÇONS ===== -->
+  <section id="vue-lecons" class="masque">
+    <div class="ruban" id="rubanLecons"></div>
+    <div id="contenuLecon"></div>
+  </section>
+
+  <!-- ===== SIMULATEUR ===== -->
+  <section id="vue-simu" class="masque">
+    <h2>Si je mets de côté chaque mois</h2>
+    <div class="carte">
+      <label for="mensuel">Combien par mois ? (en francs CFA)</label>
+      <input id="mensuel" type="number" min="0" step="500" value="2000">
+      <label for="ageSimu">Ton âge aujourd'hui</label>
+      <input id="ageSimu" type="number" min="5" max="25" value="10">
+      <label for="rendement">Combien ça rapporte par an ?</label>
+      <select id="rendement">
+        <option value="0">0 % — sous le matelas</option>
+        <option value="0.03">3 % — compte d'épargne</option>
+        <option value="0.06" selected>6 % — fonds prudent</option>
+        <option value="0.09">9 % — actions, avec des hauts et des bas</option>
+      </select>
+      <div style="margin-top:16px"><button id="btnSimuler">Calculer</button></div>
+    </div>
+    <div id="resultatSimu"></div>
+  </section>
+
+  <!-- ===== CARNET ===== -->
+  <section id="vue-carnet" class="masque">
+    <h2>Mon carnet</h2>
+    <p class="doux petit">Note ici ce que tu reçois et ce que tu mets de côté.
+       C'est ton argent à toi, celui que tu décides.</p>
+    <div class="carte">
+      <div class="rangee">
+        <div style="flex:2 1 140px">
+          <label for="opLibelle">Quoi ?</label>
+          <input id="opLibelle" placeholder="ex. argent de poche" autocomplete="off">
+        </div>
+        <div style="flex:1 1 110px">
+          <label for="opMontant">Combien ?</label>
+          <input id="opMontant" type="number" step="100" placeholder="2000">
+        </div>
+      </div>
+      <label for="opType">C'est quoi ?</label>
+      <select id="opType">
+        <option value="recu">J'ai reçu de l'argent</option>
+        <option value="epargne">J'ai mis de côté</option>
+        <option value="depense">J'ai dépensé</option>
+      </select>
+      <div style="margin-top:16px"><button id="btnAjouterOp">Ajouter</button></div>
+    </div>
+    <div id="resumeCarnet"></div>
+  </section>
+
+  <!-- ===== ENTREPRISES ===== -->
+  <section id="vue-entreprises" class="masque">
+    <h2>Des entreprises que tu connais</h2>
+    <p class="doux petit">Toutes celles-ci sont cotées à la Bourse Régionale des
+       Valeurs Mobilières, à Abidjan. On peut vraiment en acheter une part.</p>
+    <div id="listeEntreprises"></div>
+  </section>
+</div>
+
+<nav class="barre" role="tablist">
+  <button data-vue="accueil" aria-selected="true"><em>🏠</em>Accueil</button>
+  <button data-vue="lecons" aria-selected="false"><em>📖</em>Leçons</button>
+  <button data-vue="simu" aria-selected="false"><em>📈</em>Simulateur</button>
+  <button data-vue="entreprises" aria-selected="false"><em>🏢</em>Entreprises</button>
+  <button data-vue="carnet" aria-selected="false"><em>📓</em>Carnet</button>
+</nav>
+
+<script>
+/* ============ Mémoire locale, tolérante aux refus du navigateur ============ */
+var E = {
+  lire: function (c, def) {
+    try { var v = localStorage.getItem('mag_' + c); return v ? JSON.parse(v) : def; }
+    catch (e) { return def; }
+  },
+  ecrire: function (c, v) {
+    try { localStorage.setItem('mag_' + c, JSON.stringify(v)); } catch (e) {}
+  }
+};
+
+var profil = E.lire('profil', null);
+var faites = E.lire('faites', []);
+var carnet = E.lire('carnet', []);
+
+/* ============ Les leçons ============ */
+/* Chaque leçon vise un âge minimum : on ne montre pas un PER à un enfant de
+   sept ans, et on n'explique pas trois fois ce qu'est une pièce à quinze. */
+var LECONS = [
+  {
+    cle: 'depenser-garder', age: 7, titre: 'Dépenser ou garder',
+    corps: [
+      "Quand tu reçois 1 000 francs, tu as un choix. Les dépenser tout de suite, " +
+      "et il ne reste rien. Ou en garder une partie.",
+      "Les gens qui finissent par avoir de l'argent ne sont pas forcément ceux " +
+      "qui en gagnent le plus. Ce sont souvent ceux qui en gardent une part, " +
+      "chaque fois, sans exception.",
+      "Une règle simple pour commencer : sur tout ce que tu reçois, tu mets " +
+      "de côté une pièce sur quatre. Le reste, tu en fais ce que tu veux, " +
+      "sans culpabiliser."
+    ],
+    quiz: [
+      { q: "Tu reçois 2 000 F. Avec la règle « une pièce sur quatre », combien mets-tu de côté ?",
+        r: ["500 F", "1 000 F", "2 000 F"], bon: 0,
+        exp: "Un quart de 2 000, c'est 500 F. Il te reste 1 500 F à dépenser librement." },
+      { q: "Qu'est-ce qui compte le plus pour se constituer une épargne ?",
+        r: ["Gagner beaucoup", "Mettre de côté régulièrement", "Avoir de la chance"], bon: 1,
+        exp: "La régularité bat le montant. Un peu, tous les mois, pendant des années." }
+    ]
+  },
+  {
+    cle: 'argent-dort', age: 7, titre: "L'argent qui dort",
+    corps: [
+      "Si tu caches 10 000 F sous ton matelas et que tu les retrouves dans dix " +
+      "ans, tu auras toujours 10 000 F. Mais tu pourras acheter moins de choses " +
+      "avec.",
+      "Pourquoi ? Parce que les prix montent avec le temps. Un pain qui coûte " +
+      "100 F aujourd'hui en coûtera peut-être 150 dans dix ans. C'est ce qu'on " +
+      "appelle l'inflation.",
+      "L'argent qui dort perd de la valeur. L'argent qui travaille en gagne. " +
+      "C'est pour ça qu'on le place."
+    ],
+    quiz: [
+      { q: "Tu gardes 10 000 F sous ton matelas pendant 10 ans. Que se passe-t-il ?",
+        r: ["Tu as plus d'argent", "Tu as toujours 10 000 F mais tu peux acheter moins", "Tu as moins de billets"],
+        bon: 1,
+        exp: "Les billets sont là, mais les prix ont monté. Ton argent achète moins qu'avant." }
+    ]
+  },
+  {
+    cle: 'interets', age: 9, titre: "L'argent qui fait des petits",
+    corps: [
+      "Quand tu places de l'argent, on te verse un petit supplément chaque année. " +
+      "On appelle ça les intérêts.",
+      "Le plus intéressant, c'est que l'année suivante, tu touches des intérêts " +
+      "sur ton argent de départ ET sur les intérêts déjà gagnés. Ton argent fait " +
+      "des petits, et les petits font des petits à leur tour.",
+      "Un exemple. Tu places 100 000 F à 6 % par an. Au bout d'un an, tu as " +
+      "106 000 F. Au bout de dix ans, pas 160 000 mais environ 179 000 F. " +
+      "Les 19 000 de différence, c'est le travail des intérêts sur les intérêts."
+    ],
+    quiz: [
+      { q: "Tu places 100 000 F à 10 % par an. Après deux ans, tu as :",
+        r: ["120 000 F", "121 000 F", "110 000 F"], bon: 1,
+        exp: "La première année : 110 000. La deuxième, les 10 % portent sur 110 000, " +
+             "ce qui fait 11 000. Total 121 000 F." },
+      { q: "Qu'est-ce qui rend les intérêts composés si puissants ?",
+        r: ["Le montant placé", "Le temps", "La banque"], bon: 1,
+        exp: "Le temps. Plus tu laisses longtemps, plus l'effet grossit. " +
+             "C'est pour ça que commencer jeune change tout." }
+    ]
+  },
+  {
+    cle: 'action', age: 11, titre: "Une action, c'est quoi",
+    corps: [
+      "Imagine une entreprise qui vend du jus de bissap. Elle vaut 1 000 000 F. " +
+      "Pour grandir, elle a besoin d'argent. Alors elle se découpe en 1 000 parts " +
+      "de 1 000 F chacune, et elle les vend.",
+      "Si tu achètes une part, tu possèdes un millième de l'entreprise. Cette " +
+      "part s'appelle une action. Tu n'es plus seulement client : tu es " +
+      "copropriétaire.",
+      "À la Bourse Régionale des Valeurs Mobilières, à Abidjan, on peut acheter " +
+      "des actions de vraies entreprises : SONATEL, qui gère le téléphone au " +
+      "Sénégal, la CIE qui distribue l'électricité en Côte d'Ivoire, des banques, " +
+      "des usines."
+    ],
+    quiz: [
+      { q: "Quand tu achètes une action, tu deviens :",
+        r: ["Client de l'entreprise", "Copropriétaire de l'entreprise", "Employé de l'entreprise"],
+        bon: 1,
+        exp: "Copropriétaire. Une toute petite part, mais une part réelle." },
+      { q: "Une entreprise se découpe en 1 000 actions. Tu en as 10. Tu possèdes :",
+        r: ["1 % de l'entreprise", "10 % de l'entreprise", "0,1 % de l'entreprise"],
+        bon: 0,
+        exp: "10 actions sur 1 000, cela fait 1 %." }
+    ]
+  },
+  {
+    cle: 'dividende', age: 11, titre: "Le dividende",
+    corps: [
+      "Reprenons l'entreprise de bissap. À la fin de l'année, elle a gagné de " +
+      "l'argent. Les patrons décident d'en garder une partie pour acheter une " +
+      "nouvelle machine, et d'en distribuer une autre aux propriétaires.",
+      "Comme tu possèdes une part, tu reçois ta part du bénéfice. On appelle ça " +
+      "le dividende. Ce n'est pas un cadeau : c'est ton dû, parce que " +
+      "l'entreprise t'appartient un peu.",
+      "C'est très concret. Les entreprises de la BRVM versent leurs dividendes " +
+      "une fois par an, souvent vers mai ou juin. Si tu as des actions à ce " +
+      "moment-là, l'argent arrive sur ton compte sans que tu aies rien à faire."
+    ],
+    quiz: [
+      { q: "Le dividende, c'est :",
+        r: ["Un cadeau de l'entreprise", "Ta part du bénéfice, parce que tu es copropriétaire", "Un prêt"],
+        bon: 1,
+        exp: "Ta part du bénéfice. Tu y as droit parce que tu possèdes une partie de l'entreprise." },
+      { q: "Tu as 10 actions. L'entreprise verse 300 F de dividende par action. Tu reçois :",
+        r: ["300 F", "3 000 F", "30 F"], bon: 1,
+        exp: "10 × 300 = 3 000 F, versés une fois dans l'année." }
+    ]
+  },
+  {
+    cle: 'risque', age: 12, titre: "Pourquoi ça monte et ça descend",
+    corps: [
+      "Le prix d'une action change tous les jours. Si beaucoup de gens veulent " +
+      "l'acheter, le prix monte. Si beaucoup veulent la vendre, il descend.",
+      "Et les gens changent d'avis selon ce qu'ils apprennent : l'entreprise a " +
+      "gagné plus d'argent que prévu, ou elle a perdu un gros client, ou la " +
+      "pluie a abîmé les récoltes.",
+      "Cela veut dire quelque chose d'important : tu peux perdre de l'argent. " +
+      "Une action qui vaut 10 000 F peut en valoir 7 000 l'année suivante. " +
+      "C'est normal, cela fait partie du jeu.",
+      "Mais sur dix ou vingt ans, les bonnes entreprises ont tendance à valoir " +
+      "plus cher, parce qu'elles grandissent. La patience est ton meilleur outil."
+    ],
+    quiz: [
+      { q: "Le prix d'une action baisse. Qu'est-ce que ça veut dire ?",
+        r: ["L'entreprise va disparaître", "Plus de gens veulent vendre qu'acheter", "Tu as fait une erreur"],
+        bon: 1,
+        exp: "C'est une question d'offre et de demande. Une baisse n'est pas forcément un drame." },
+      { q: "Quel est le meilleur allié de celui qui investit ?",
+        r: ["La chance", "Le temps", "La rapidité"], bon: 1,
+        exp: "Le temps. Il lisse les hauts et les bas, et laisse les intérêts travailler." }
+    ]
+  },
+  {
+    cle: 'fcp', age: 13, titre: "Ne pas tout mettre au même endroit",
+    corps: [
+      "Si tu places tout ton argent dans une seule entreprise et qu'elle a des " +
+      "ennuis, tu perds beaucoup. Si tu le répartis sur dix entreprises, un " +
+      "problème sur l'une d'elles ne t'abîme pas.",
+      "Mais acheter dix actions différentes coûte cher quand on commence. " +
+      "C'est là qu'interviennent les FCP, les fonds communs de placement.",
+      "Un FCP, c'est une grande caisse commune. Beaucoup de gens y mettent un " +
+      "peu d'argent, et des professionnels achètent des dizaines d'actions avec " +
+      "l'ensemble. Tu achètes une part de la caisse, et tu possèdes donc un " +
+      "petit morceau de tout ce qu'elle contient.",
+      "C'est souvent par là qu'on commence, parce qu'on peut démarrer avec peu."
+    ],
+    quiz: [
+      { q: "Pourquoi répartir son argent sur plusieurs entreprises ?",
+        r: ["Pour gagner plus", "Pour qu'un problème sur l'une ne ruine pas tout", "Parce que c'est obligatoire"],
+        bon: 1,
+        exp: "C'est la diversification : elle ne fait pas gagner plus, elle évite de tout perdre." },
+      { q: "Un FCP, c'est :",
+        r: ["Une banque", "Une caisse commune qui achète beaucoup d'actions", "Un compte d'épargne"],
+        bon: 1,
+        exp: "Une caisse commune. Tu en achètes une part, et tu possèdes un bout de tout ce qu'elle contient." }
+    ]
+  },
+  {
+    cle: 'commencer', age: 14, titre: "Comment on commence vraiment",
+    corps: [
+      "Pour acheter des actions à la BRVM, on passe par une SGI, une société de " +
+      "gestion et d'intermédiation. C'est elle qui transmet les ordres à la bourse.",
+      "Tu ouvres un compte-titres chez elle, tu y verses de l'argent, et tu lui " +
+      "dis quoi acheter. Si tu es mineur, c'est un parent qui ouvre le compte " +
+      "à ton nom.",
+      "Trois conseils pour bien partir. Ne place que de l'argent dont tu n'as " +
+      "pas besoin dans les deux ans. Commence petit, pour apprendre sans " +
+      "souffrir. Et renseigne-toi sur l'entreprise avant d'acheter : que " +
+      "vend-elle, gagne-t-elle de l'argent, à qui ?",
+      "Méfie-toi de tout ce qui promet de doubler ton argent en quelques " +
+      "semaines. En finance, ce qui va très vite va presque toujours dans le " +
+      "mauvais sens."
+    ],
+    quiz: [
+      { q: "Par qui passe-t-on pour acheter une action à la BRVM ?",
+        r: ["Directement à la bourse", "Par une SGI", "Par la banque centrale"],
+        bon: 1,
+        exp: "Par une SGI, société de gestion et d'intermédiation." },
+      { q: "Quelqu'un te promet de doubler ton argent en un mois. Tu fais quoi ?",
+        r: ["Tu fonces", "Tu refuses, c'est presque sûrement une arnaque", "Tu mets la moitié"],
+        bon: 1,
+        exp: "Tu refuses. Aucun placement honnête ne double en un mois." }
+    ]
+  }
+];
+
+/* ============ Utilitaires ============ */
+function f(n){ return Math.round(n).toLocaleString('fr-FR').replace(/\u202f|,/g,' '); }
+function $(s){ return document.querySelector(s); }
+function niveauPourAge(a){ return a <= 8 ? 1 : (a <= 11 ? 2 : (a <= 14 ? 3 : 4)); }
+
+function leconsDisponibles(){
+  var a = profil ? profil.age : 7;
+  return LECONS.filter(function(l){ return a >= l.age; });
+}
+
+
+/* ============ Entreprises réelles de la cote ============ */
+/* Choisies parce qu'un enfant d'Afrique de l'Ouest les croise dans sa vie
+   de tous les jours. Le but n'est pas de donner envie d'acheter, mais de
+   faire comprendre qu'une action, c'est une part de quelque chose de réel. */
+var ENTREPRISES = [
+  { nom:'SONATEL', pays:'Sénégal', secteur:'Télécommunications',
+    quoi:"Le téléphone et internet au Sénégal, au Mali, en Guinée. Quand "
+       + "quelqu'un recharge son crédit Orange là-bas, une petite partie "
+       + "finit dans les comptes de cette entreprise.",
+    repere:"C'est l'une des plus grosses sociétés de toute la bourse." },
+  { nom:'CIE', pays:"Côte d'Ivoire", secteur:'Services publics',
+    quoi:"L'électricité en Côte d'Ivoire. Les poteaux, les câbles, les "
+       + "compteurs, les factures : c'est elle.",
+    repere:"Tout le monde a besoin d'électricité, même quand ça va mal." },
+  { nom:'SODECI', pays:"Côte d'Ivoire", secteur:'Services publics',
+    quoi:"L'eau courante en Côte d'Ivoire. Elle la traite, la transporte "
+       + "et la facture.",
+    repere:"Même logique que l'électricité : on ne s'en passe pas." },
+  { nom:'SOLIBRA', pays:"Côte d'Ivoire", secteur:'Consommation de base',
+    quoi:"Les boissons : bières, sucreries, eaux. Les bouteilles que tu "
+       + "vois au maquis ou à la boutique du coin.",
+    repere:"Les gens boivent toute l'année, il n'y a pas de saison creuse." },
+  { nom:'NESTLÉ Côte d\'Ivoire', pays:"Côte d'Ivoire", secteur:'Consommation de base',
+    quoi:"Le lait, le cacao, les cubes, le café. Beaucoup de ce qu'il y a "
+       + "dans la cuisine vient de là.",
+    repere:"Une marque connue ne veut pas dire un bon placement : il faut "
+       + "regarder si l'entreprise gagne de l'argent." },
+  { nom:'SITAB', pays:"Côte d'Ivoire", secteur:'Industriels',
+    quoi:"Une usine de transformation du tabac.",
+    repere:"Certains refusent d'investir dans le tabac ou l'alcool. C'est "
+       + "un choix personnel, et c'est très bien de se poser la question." },
+  { nom:'PALM Côte d\'Ivoire', pays:"Côte d'Ivoire", secteur:'Agriculture',
+    quoi:"Les plantations de palmiers à huile, et l'huile qu'on en tire.",
+    repere:"Son résultat dépend de la pluie et du prix mondial de l'huile. "
+       + "Certaines années sont très bonnes, d'autres beaucoup moins." },
+  { nom:'Ecobank', pays:'Togo', secteur:'Services financiers',
+    quoi:"Une banque présente dans une trentaine de pays africains.",
+    repere:"Une banque gagne de l'argent en prêtant. Quand l'économie "
+       + "ralentit, certains ne remboursent plus." }
+];
+
+function dessinerEntreprises(){
+  var h = '';
+  ENTREPRISES.forEach(function(e){
+    h += '<div class="carte"><div class="rangee" style="align-items:flex-start">' +
+      '<div><h3>' + e.nom + '</h3>' +
+      '<p class="doux petit" style="margin:0">' + e.secteur + ' · ' + e.pays + '</p></div>' +
+      '</div><p style="margin-top:10px">' + e.quoi + '</p>' +
+      '<p class="doux petit" style="margin:0"><strong>À retenir :</strong> ' + e.repere + '</p></div>';
+  });
+  h += '<div class="carte"><h3>Comment on choisit</h3>' +
+    '<p>Connaître une marque ne suffit pas. Avant d\'acheter une part, on se ' +
+    'pose trois questions simples.</p>' +
+    '<p>Que vend cette entreprise, et est-ce que les gens en auront encore ' +
+    'besoin dans dix ans ? Gagne-t-elle de l\'argent, année après année ? ' +
+    'Et le prix demandé est-il raisonnable par rapport à ce qu\'elle gagne ?</p>' +
+    '<p class="doux petit" style="margin:0">Si tu ne sais pas répondre, ce n\'est ' +
+    'pas grave : cela veut juste dire qu\'il faut encore se renseigner avant ' +
+    'de mettre son argent.</p></div>';
+  document.getElementById('listeEntreprises').innerHTML = h;
+}
+
+/* ============ Navigation ============ */
+var vues = ['accueil','lecons','simu','entreprises','carnet'];
+function montrer(v){
+  vues.forEach(function(x){
+    var el = document.getElementById('vue-' + x);
+    if (el) el.classList.toggle('masque', x !== v);
+  });
+  document.querySelectorAll('.barre button').forEach(function(b){
+    b.setAttribute('aria-selected', b.dataset.vue === v ? 'true' : 'false');
+  });
+  if (v === 'lecons') dessinerLecons();
+  if (v === 'entreprises') dessinerEntreprises();
+  if (v === 'carnet') dessinerCarnet();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('.barre button').forEach(function(b){
+  b.addEventListener('click', function(){ montrer(b.dataset.vue); });
+});
+
+/* ============ Accueil ============ */
+function dessinerAccueil(){
+  if (!profil){ $('#carteBienvenue').classList.remove('masque'); $('#carteProgres').classList.add('masque'); return; }
+  $('#carteBienvenue').classList.add('masque');
+  $('#carteProgres').classList.remove('masque');
+  $('#salut').textContent = 'Salut ' + profil.prenom;
+  var dispo = leconsDisponibles();
+  var finies = dispo.filter(function(l){ return faites.indexOf(l.cle) >= 0; }).length;
+  var pct = dispo.length ? Math.round(finies / dispo.length * 100) : 0;
+  $('#jaugeProgres').style.width = pct + '%';
+  $('#progresTexte').textContent = finies + ' leçon' + (finies>1?'s':'') + ' sur ' + dispo.length + ' terminée' + (finies>1?'s':'') + '.';
+  $('#badge').textContent = 'Niveau ' + niveauPourAge(profil.age);
+  var n = niveauPourAge(profil.age);
+  $('#niveauTexte').textContent = n === 1 ? "On commence par les bases de l'argent."
+    : n === 2 ? "On découvre comment l'argent grandit."
+    : n === 3 ? "On entre dans la bourse et les entreprises."
+    : "On parle de vrais placements.";
+}
+
+$('#btnDemarrer').addEventListener('click', function(){
+  var p = $('#prenom').value.trim();
+  var a = parseInt($('#age').value, 10);
+  if (!p || !a || a < 6){ alert('Indique ton prénom et ton âge.'); return; }
+  profil = { prenom: p, age: a };
+  E.ecrire('profil', profil);
+  $('#ageSimu').value = a;
+  dessinerAccueil();
+  montrer('lecons');
+});
+
+/* ============ Leçons ============ */
+var leconActive = 0;
+function dessinerLecons(){
+  var dispo = leconsDisponibles();
+  var ruban = $('#rubanLecons');
+  ruban.innerHTML = '';
+  dispo.forEach(function(l, i){
+    var b = document.createElement('button');
+    b.textContent = (faites.indexOf(l.cle) >= 0 ? '✓ ' : '') + l.titre;
+    b.setAttribute('aria-selected', i === leconActive ? 'true' : 'false');
+    b.addEventListener('click', function(){ leconActive = i; dessinerLecons(); });
+    ruban.appendChild(b);
+  });
+  if (!dispo.length){ $('#contenuLecon').innerHTML = '<div class="carte"><p>Renseigne ton âge sur l\'accueil.</p></div>'; return; }
+  if (leconActive >= dispo.length) leconActive = 0;
+  afficherLecon(dispo[leconActive]);
+}
+
+function afficherLecon(l){
+  var h = '<div class="carte"><h3>' + l.titre + '</h3>';
+  l.corps.forEach(function(p){ h += '<p>' + p + '</p>'; });
+  h += '</div><div class="carte quiz" id="zoneQuiz"><h3>À toi de jouer</h3><div id="questions"></div></div>';
+  $('#contenuLecon').innerHTML = h;
+  poserQuestion(l, 0, 0);
+}
+
+function poserQuestion(l, i, score){
+  var zone = $('#questions');
+  if (i >= l.quiz.length){
+    var reussi = score === l.quiz.length;
+    if (reussi && faites.indexOf(l.cle) < 0){
+      faites.push(l.cle); E.ecrire('faites', faites);
+      try { envoyerProgression(false); } catch (e) {}
+    }
+    zone.innerHTML = '<p style="font-size:17px" class="' + (reussi ? 'vert' : 'or') + '">' +
+      (reussi ? 'Tout juste. Leçon validée.' : 'Tu as ' + score + ' bonne' + (score>1?'s':'') + ' réponse' + (score>1?'s':'') + ' sur ' + l.quiz.length + '.') +
+      '</p><p class="doux petit">' + (reussi ? 'Passe à la suivante quand tu veux.' : 'Relis la leçon et réessaie, il n\'y a rien à perdre.') + '</p>' +
+      '<button class="sobre" id="btnRejouer">Recommencer le quiz</button>';
+    $('#btnRejouer').addEventListener('click', function(){ poserQuestion(l, 0, 0); });
+    dessinerAccueil();
+    return;
+  }
+  var q = l.quiz[i];
+  var h = '<p class="doux petit">Question ' + (i+1) + ' sur ' + l.quiz.length + '</p><p><strong>' + q.q + '</strong></p>';
+  q.r.forEach(function(r, j){ h += '<button data-j="' + j + '">' + r + '</button>'; });
+  zone.innerHTML = h;
+  zone.querySelectorAll('button').forEach(function(b){
+    b.addEventListener('click', function(){
+      var j = parseInt(b.dataset.j, 10);
+      zone.querySelectorAll('button').forEach(function(x){ x.disabled = true; });
+      b.classList.add(j === q.bon ? 'bon' : 'faux');
+      if (j !== q.bon) zone.querySelectorAll('button')[q.bon].classList.add('bon');
+      var p = document.createElement('p');
+      p.className = 'doux petit';
+      p.style.marginTop = '10px';
+      p.textContent = q.exp;
+      zone.appendChild(p);
+      var suite = document.createElement('button');
+      suite.textContent = 'Continuer';
+      suite.style.marginTop = '10px';
+      suite.addEventListener('click', function(){ poserQuestion(l, i+1, score + (j === q.bon ? 1 : 0)); });
+      zone.appendChild(suite);
+    });
+  });
+}
+
+/* ============ Simulateur ============ */
+$('#btnSimuler').addEventListener('click', function(){
+  var m = Math.max(0, parseFloat($('#mensuel').value) || 0);
+  var age = Math.min(25, Math.max(5, parseInt($('#ageSimu').value, 10) || 10));
+  var r = parseFloat($('#rendement').value) || 0;
+  var mois = Math.max(1, (18 - age) * 12);
+
+  var i = r > 0 ? Math.pow(1 + r, 1/12) - 1 : 0;
+  var valeur = i > 0 ? m * (Math.pow(1 + i, mois) - 1) / i : m * mois;
+  var verse = m * mois;
+  var gagne = valeur - verse;
+
+  // Courbe : versé contre valeur, année par année
+  var pts = [], ptsV = [];
+  for (var k = 0; k <= mois; k += 12){
+    var v = i > 0 ? m * (Math.pow(1 + i, k) - 1) / i : m * k;
+    pts.push(v); ptsV.push(m * k);
+  }
+  var maxi = Math.max.apply(null, pts) || 1;
+  var L = 300, H = 110;
+  function chemin(t){
+    return t.map(function(v, idx){
+      var x = t.length > 1 ? (idx / (t.length - 1)) * L : 0;
+      var y = H - (v / maxi) * H;
+      return (idx ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+    }).join(' ');
+  }
+
+  var svg = '<svg viewBox="0 0 ' + L + ' ' + (H + 16) + '" role="img" aria-label="Courbe de l\'épargne">' +
+    '<path d="' + chemin(ptsV) + '" fill="none" stroke="var(--doux)" stroke-width="2" stroke-dasharray="4 4"/>' +
+    '<path d="' + chemin(pts) + '" fill="none" stroke="var(--or)" stroke-width="3" stroke-linecap="round"/>' +
+    '</svg>';
+
+  var ans = Math.round(mois / 12);
+  var h = '<div class="carte">' +
+    '<p class="doux petit" style="margin:0">À 18 ans, tu aurais</p>' +
+    '<div class="chiffre or">' + f(valeur) + ' F</div>' + svg +
+    '<p class="doux petit" style="margin:6px 0 0">Trait plein : ton argent. ' +
+    'Trait pointillé : ce que tu as versé.</p>' +
+    '<table style="margin-top:14px">' +
+    '<tr><td>Tu aurais versé</td><td>' + f(verse) + ' F</td></tr>' +
+    '<tr><td>L\'argent aurait gagné tout seul</td><td class="vert">' + f(gagne) + ' F</td></tr>' +
+    '<tr><td>Pendant</td><td>' + ans + ' an' + (ans > 1 ? 's' : '') + '</td></tr>' +
+    '</table></div>';
+
+  if (gagne > 0){
+    var part = Math.round(gagne / valeur * 100);
+    h += '<div class="carte"><h3>Ce qu\'il faut retenir</h3><p>' +
+      'Sur les ' + f(valeur) + ' F, tu en aurais versé ' + f(verse) + '. ' +
+      'Le reste, soit ' + part + ' %, aurait été gagné par ton argent pendant que ' +
+      'tu vivais ta vie.</p>';
+    if (age > 8){
+      var moisTot = (18 - 8) * 12;
+      var tot8 = i > 0 ? m * (Math.pow(1 + i, moisTot) - 1) / i : m * moisTot;
+      h += '<p class="doux petit">Si tu avais commencé à 8 ans avec le même montant, ' +
+        'tu aurais ' + f(tot8) + ' F. C\'est ça, le pouvoir du temps : ' +
+        'il ne se rattrape pas.</p>';
+    }
+    h += '</div>';
+  } else {
+    h += '<div class="carte"><h3>Et si tu le plaçais ?</h3><p>Sous le matelas, ' +
+      'ton argent ne grandit pas. Reprends le calcul avec 6 % et compare.</p></div>';
+  }
+
+  h += '<p class="doux petit">Ce calcul suppose un rendement régulier. Dans la vraie ' +
+    'vie, certaines années sont bonnes, d\'autres mauvaises. Sur dix ans, cela ' +
+    'se compense souvent, mais rien n\'est garanti.</p>';
+
+  $('#resultatSimu').innerHTML = h;
+});
+
+/* ============ Carnet ============ */
+$('#btnAjouterOp').addEventListener('click', function(){
+  var lib = $('#opLibelle').value.trim();
+  var m = parseFloat($('#opMontant').value) || 0;
+  var t = $('#opType').value;
+  if (!lib || m <= 0){ alert('Indique ce que c\'est et combien.'); return; }
+  carnet.unshift({ d: new Date().toISOString().slice(0,10), lib: lib, m: m, t: t });
+  E.ecrire('carnet', carnet);
+  $('#opLibelle').value = ''; $('#opMontant').value = '';
+  dessinerCarnet();
+});
+
+function dessinerCarnet(){
+  var recu = 0, eco = 0, dep = 0;
+  carnet.forEach(function(o){
+    if (o.t === 'recu') recu += o.m;
+    else if (o.t === 'epargne') eco += o.m;
+    else dep += o.m;
+  });
+  var part = recu > 0 ? eco / recu : 0;
+
+  var h = '<div class="carte"><p class="doux petit" style="margin:0">Mis de côté en tout</p>' +
+    '<div class="chiffre vert">' + f(eco) + ' F</div>' +
+    '<div class="jauge" style="margin-top:10px"><span style="width:' +
+      Math.min(100, Math.round(part*100)) + '%"></span></div>' +
+    '<p class="doux petit" style="margin:7px 0 0">' +
+      (recu > 0
+        ? 'Tu gardes ' + Math.round(part*100) + ' % de ce que tu reçois.' +
+          (part >= 0.25 ? ' Tu tiens la règle du quart, bravo.' : ' Vise un quart pour commencer.')
+        : 'Note ce que tu reçois pour voir ta part d\'épargne.') +
+    '</p>' +
+    '<table style="margin-top:14px">' +
+    '<tr><td>Reçu</td><td>' + f(recu) + ' F</td></tr>' +
+    '<tr><td>Dépensé</td><td>' + f(dep) + ' F</td></tr>' +
+    '</table></div>';
+
+  if (carnet.length){
+    h += '<div class="carte"><h3>Mes dernières lignes</h3><ul class="liste">';
+    carnet.slice(0, 15).forEach(function(o){
+      var c = o.t === 'epargne' ? 'vert' : (o.t === 'depense' ? 'rouge' : '');
+      var signe = o.t === 'depense' ? '−' : '+';
+      h += '<li><div class="rangee"><div><strong>' + o.lib + '</strong>' +
+           '<div class="doux petit">' + o.d + '</div></div>' +
+           '<div style="flex:0 0 auto" class="' + c + '"><strong>' + signe + ' ' + f(o.m) + ' F</strong></div></div></li>';
+    });
+    h += '</ul><div style="margin-top:12px"><button class="sobre" id="btnVider">Tout effacer</button></div></div>';
+  }
+  $('#resumeCarnet').innerHTML = h;
+  var bv = $('#btnVider');
+  if (bv) bv.addEventListener('click', function(){
+    if (confirm('Effacer tout le carnet ?')){ carnet = []; E.ecrire('carnet', carnet); dessinerCarnet(); }
+  });
+}
+
+
+/* ============ Suivi par les parents ============ */
+/* L'envoi ne part que si une adresse a été renseignée, et ne transmet que
+   des totaux : le détail du carnet reste sur l'appareil de l'enfant. */
+var suivi = E.lire('suivi', { code: '', url: '' });
+
+function totauxCarnet(){
+  var recu = 0, eco = 0;
+  carnet.forEach(function(o){
+    if (o.t === 'recu') recu += o.m;
+    else if (o.t === 'epargne') eco += o.m;
+  });
+  return { recu: recu, epargne: eco };
+}
+
+function envoyerProgression(manuel){
+  if (!suivi.url || !suivi.code || !profil) return;
+  var t = totauxCarnet();
+  var dispo = leconsDisponibles();
+  var p = new URLSearchParams({
+    api: 'progression',
+    code: suivi.code,
+    prenom: profil.prenom,
+    age: String(profil.age),
+    validees: String(dispo.filter(function(l){ return faites.indexOf(l.cle) >= 0; }).length),
+    total: String(dispo.length),
+    recu: String(Math.round(t.recu)),
+    epargne: String(Math.round(t.epargne))
+  });
+  var etat = document.getElementById('etatSuivi');
+  if (manuel && etat) etat.textContent = 'Envoi en cours…';
+  fetch(suivi.url + '?' + p.toString(), { method: 'GET', mode: 'no-cors' })
+    .then(function(){
+      E.ecrire('dernierEnvoi', new Date().toISOString());
+      if (etat) etat.textContent = 'Progression envoyée. Merci !';
+    })
+    .catch(function(){
+      if (etat) etat.textContent = "L'envoi n'a pas abouti. Réessaie plus tard.";
+    });
+}
+
+var btnR = document.getElementById('btnReglages');
+if (btnR) btnR.addEventListener('click', function(){
+  var z = document.getElementById('zoneReglages');
+  z.classList.toggle('masque');
+  document.getElementById('codeEnfant').value = suivi.code || '';
+  document.getElementById('urlSuivi').value = suivi.url || '';
+});
+
+var btnER = document.getElementById('btnEnregistrerReglages');
+if (btnER) btnER.addEventListener('click', function(){
+  suivi = {
+    code: document.getElementById('codeEnfant').value.trim(),
+    url: document.getElementById('urlSuivi').value.trim()
+  };
+  E.ecrire('suivi', suivi);
+  document.getElementById('etatSuivi').textContent =
+    suivi.url ? 'Réglages enregistrés.' : 'Aucune adresse : rien ne sera envoyé.';
+});
+
+var btnEnv = document.getElementById('btnEnvoyer');
+if (btnEnv) btnEnv.addEventListener('click', function(){ envoyerProgression(true); });
+
+/* ============ Thème ============ */
+$('#btnTheme').addEventListener('click', function(){
+  var a = document.documentElement.getAttribute('data-theme');
+  var n = a === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', n);
+  E.ecrire('theme', n);
+});
+var th = E.lire('theme', null);
+if (th) document.documentElement.setAttribute('data-theme', th);
+
+/* ============ Démarrage ============ */
+if (profil){ $('#ageSimu').value = profil.age; }
+dessinerAccueil();
+montrer('accueil');
+</script>
+</body>
+</html>
