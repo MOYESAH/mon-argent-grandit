@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-XhYrG1MGDAkARf8+J2o2V42cJPv4mPoKOv6/D9rWa1o='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://script.google.com https://script.googleusercontent.com; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <title>Mon argent grandit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,16 +17,22 @@
   --fond:#FBF6EC; --encre:#2A2520; --doux:#7A6F60;
   --or:#E2A33C; --vert:#4E7A4A; --rouge:#B5503F; --bleu:#2F5E7E;
   --carte:#FFFFFF; --trait:#E8DECC;
+  --sable:#F0DFBC; --terre:#C9774A; --peau:#8C5A3C; --feuille:#6E9B5A;
+  --bissap:#8E2F45; --ciel:#DCEAF0; --ligne:#2A2520;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --fond:#1A1713; --encre:#F2EADC; --doux:#A79A87;
     --carte:#241F1A; --trait:#3A332B;
+    --sable:#4A3F30; --terre:#A8603A; --peau:#9A6A4A; --feuille:#5E8A4C;
+    --bissap:#9C3A52; --ciel:#22313A; --ligne:#E9DFCF;
   }
 }
 :root[data-theme="dark"]{
   --fond:#1A1713; --encre:#F2EADC; --doux:#A79A87;
   --carte:#241F1A; --trait:#3A332B;
+  --sable:#4A3F30; --terre:#A8603A; --peau:#9A6A4A; --feuille:#5E8A4C;
+  --bissap:#9C3A52; --ciel:#22313A; --ligne:#E9DFCF;
 }
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -66,7 +74,29 @@ label{display:block;font-size:13.5px;color:var(--doux);margin:12px 0 5px}
 .quiz button.faux{background:rgba(181,80,63,.14);border-color:var(--rouge)}
 .barre{position:fixed;left:0;right:0;bottom:0;background:var(--carte);border-top:1px solid var(--trait);
   display:flex;padding-bottom:env(safe-area-inset-bottom,0px)}
-.barre button{flex:1;background:transparent;color:var(--doux);border-radius:0;padding:13px 4px;font-size:12.5px;font-weight:600}
+.barre button{flex:1;background:transparent;color:var(--doux);border-radius:0;padding:12px 2px;font-size:11.5px;font-weight:600}
+/* Dessins : traits encrés, aplats chauds, comme au feutre */
+svg.dessin{display:block;width:100%;max-width:520px;height:auto;margin:6px auto 14px}
+.dessin *{stroke:var(--ligne);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.dessin .o{fill:var(--or)} .dessin .v{fill:var(--feuille)} .dessin .r{fill:var(--rouge)}
+.dessin .b{fill:var(--bleu)} .dessin .s{fill:var(--sable)} .dessin .t{fill:var(--terre)}
+.dessin .p{fill:var(--peau)} .dessin .k{fill:var(--bissap)} .dessin .c{fill:var(--carte)}
+.dessin .ci{fill:var(--ciel)} .dessin .l{fill:var(--ligne)} .dessin .n{fill:none}
+.dessin .fin{stroke-width:1.3} .dessin .pt{stroke-dasharray:3 6} .dessin .gras{stroke-width:3.4}
+.dessin .lo{stroke:var(--or);stroke-width:3.6} .dessin .sans{stroke:none}
+.dessin text{stroke:none;fill:var(--encre);font-family:Karla,system-ui,sans-serif;font-size:12.5px;font-weight:700}
+.dessin text.m{text-anchor:middle}
+svg.jeton{display:inline-block;width:auto;height:44px;margin:0;vertical-align:middle}
+.jetons{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.jetons button{background:transparent;border:1px solid var(--trait);padding:4px 6px;border-radius:12px;color:var(--encre)}
+.choix button{display:block;width:100%;text-align:left;background:var(--fond);color:var(--encre);border:1px solid var(--trait);font-weight:600;margin:7px 0;padding:12px 14px}
+.choix button.on{border-color:var(--or);background:rgba(226,163,60,.20)}
+.choix button.bon{border-color:var(--vert);background:rgba(78,122,74,.16)}
+.choix button.faux{border-color:var(--rouge);background:rgba(181,80,63,.14)}
+.grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.grille button{margin:0}
+.etoiles{color:var(--or);letter-spacing:2px;font-size:17px}
+.bourse{display:flex;flex-wrap:wrap;gap:4px;min-height:48px;padding:6px;border:1px dashed var(--trait);border-radius:10px;margin:8px 0}
 .barre button[aria-selected="true"]{color:var(--or)}
 .barre em{display:block;font-size:19px;font-style:normal;margin-bottom:2px}
 table{width:100%;border-collapse:collapse;font-size:14px}
@@ -74,27 +104,82 @@ td{padding:7px 0;border-bottom:1px solid var(--trait)}
 td:last-child{text-align:right;font-weight:600}
 svg{max-width:100%;height:auto}
 .masque{display:none}
+.alerte{color:var(--rouge)}
+hr.fin{border:0;border-top:1px solid var(--trait);margin:16px 0}
 </style>
 </head>
 <body>
 <div class="enveloppe">
   <header style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
     <h1>Mon argent grandit</h1>
-    <button class="sobre" id="btnTheme" style="flex:0 0 auto;padding:7px 11px;font-size:13px">◐</button>
+    <div style="flex:0 0 auto;display:flex;gap:6px">
+      <button class="sobre masque" id="btnQuitter" style="padding:7px 11px;font-size:13px">Changer</button>
+      <button class="sobre" id="btnTheme" style="padding:7px 11px;font-size:13px">◐</button>
+    </div>
   </header>
   <p class="doux petit" id="accroche">Comprendre l'argent, l'épargne et la bourse. Pas à pas.</p>
 
-  <!-- ===== ACCUEIL ===== -->
-  <section id="vue-accueil">
-    <div class="carte" id="carteBienvenue">
-      <h3>On commence par faire connaissance</h3>
-      <label for="prenom">Ton prénom</label>
-      <input id="prenom" placeholder="ex. Marie" autocomplete="off">
-      <label for="age">Ton âge</label>
-      <input id="age" type="number" min="6" max="25" placeholder="ex. 10">
-      <div style="margin-top:16px"><button id="btnDemarrer">C'est parti</button></div>
+  <!-- ===== CONNEXION ===== -->
+  <section id="vue-connexion">
+    <div class="carte" id="carteEntree">
+      <h3>Bonjour !</h3>
+      <label for="logPrenom">Ton prénom</label>
+      <input id="logPrenom" autocomplete="off" autocapitalize="words" maxlength="30">
+      <label for="mdp">Ton mot de passe</label>
+      <input id="mdp" type="password" autocomplete="current-password" maxlength="64">
+      <div style="margin-top:14px"><button id="btnEntrer">Entrer</button></div>
+      <p class="petit" id="etatMdp" style="margin:10px 0 0"></p>
+      <div class="rangee" style="margin-top:14px">
+        <button class="sobre" id="btnNouveau" style="flex:0 0 auto;padding:7px 12px;font-size:13px">Je n'ai pas encore de compte</button>
+        <button class="sobre" id="btnOublie" style="flex:0 0 auto;padding:7px 12px;font-size:13px">Mot de passe oublié ?</button>
+      </div>
     </div>
-    <div class="carte masque" id="carteProgres">
+
+    <div class="carte masque" id="carteCreer">
+      <h3>Créer mon compte</h3>
+      <p class="doux petit masque" id="noteMigration">Tes leçons et ton carnet déjà sur ce téléphone seront gardés.
+         Il te suffit de choisir un mot de passe.</p>
+      <label for="nvPrenom">Prénom</label>
+      <input id="nvPrenom" placeholder="ex. Marie" autocomplete="off" autocapitalize="words" maxlength="30">
+      <label for="nvAge">Âge</label>
+      <input id="nvAge" type="number" min="6" max="25" placeholder="ex. 10">
+      <label for="nvMdp">Mot de passe (4 caractères au moins)</label>
+      <input id="nvMdp" type="password" autocomplete="new-password" maxlength="64">
+      <label for="nvMdp2">Encore une fois, pour vérifier</label>
+      <input id="nvMdp2" type="password" autocomplete="new-password" maxlength="64">
+      <p class="doux petit" style="margin:10px 0 0">Pour entrer, tu taperas ton prénom et ce mot de passe.
+         Retiens-le bien : si tu l'oublies, personne ne peut le retrouver, même pas
+         tes parents. C'est ce qui protège ton carnet.</p>
+      <div style="margin-top:14px" class="rangee">
+        <button id="btnCreer">Créer</button>
+        <button class="sobre" id="btnAnnulerCreer" style="flex:0 0 auto">Annuler</button>
+      </div>
+      <p class="petit" id="etatCreer" style="margin:10px 0 0"></p>
+    </div>
+
+    <div class="carte masque" id="carteOubli">
+      <h3>Mot de passe oublié</h3>
+      <p>Ton carnet est verrouillé avec ton mot de passe. Sans lui, personne ne peut
+         l'ouvrir, et c'est voulu : c'est ce qui le protège des autres.</p>
+      <p>La seule solution est d'effacer ton compte et d'en recréer un. Les leçons
+         validées et le carnet seront perdus.</p>
+      <label for="confOubli">Ton prénom</label>
+      <input id="confOubli" autocomplete="off" autocapitalize="words" maxlength="30">
+      <div style="margin-top:14px" class="rangee">
+        <button id="btnEffacerCompte" style="background:var(--rouge);color:#fff">Effacer mon compte</button>
+        <button class="sobre" id="btnAnnulerOubli" style="flex:0 0 auto">Annuler</button>
+      </div>
+      <p class="petit" id="etatOubli" style="margin:10px 0 0"></p>
+    </div>
+
+    <p class="doux petit">Chaque personne a son propre compte, protégé par son mot de passe.
+       Plusieurs enfants peuvent partager le même téléphone : aucun ne voit le carnet
+       des autres.</p>
+  </section>
+
+  <!-- ===== ACCUEIL ===== -->
+  <section id="vue-accueil" class="masque">
+    <div class="carte" id="carteProgres">
       <div class="rangee" style="align-items:flex-end">
         <div>
           <h3 id="salut">Salut</h3>
@@ -106,6 +191,7 @@ svg{max-width:100%;height:auto}
       <p class="doux petit" style="margin:7px 0 0" id="progresTexte"></p>
     </div>
     <div class="carte">
+      <div id="illusAccueil"></div>
       <h3>Pourquoi c'est important</h3>
       <p>L'argent que tu reçois aujourd'hui peut faire deux choses. Il peut partir
          tout de suite, et il n'en reste rien. Ou il peut travailler pour toi,
@@ -124,8 +210,9 @@ svg{max-width:100%;height:auto}
         <a href="mailto:saouren@gmail.com">saouren@gmail.com</a>
       </p>
       <p class="doux petit" style="margin:6px 0 0">
-        Ce que tu notes dans le carnet reste sur ton téléphone. Rien n'est
-        envoyé ailleurs, personne d'autre ne le voit. Si tes parents t'ont
+        Ce que tu notes dans le carnet reste sur ce téléphone, verrouillé par
+        ton mot de passe. Rien n'est envoyé ailleurs, et même quelqu'un qui
+        utilise le même téléphone ne peut pas le lire. Si tes parents t'ont
         donné une adresse de suivi, seuls ton prénom, tes leçons validées et
         tes totaux leur sont transmis. Jamais le détail de tes lignes.
       </p>
@@ -133,15 +220,31 @@ svg{max-width:100%;height:auto}
         <button class="sobre" id="btnReglages" style="padding:7px 12px;font-size:13px">Réglages</button>
       </p>
       <div id="zoneReglages" class="masque" style="margin-top:12px">
+        <label for="regAge">Mon âge</label>
+        <input id="regAge" type="number" min="6" max="25">
         <label for="codeEnfant">Ton code personnel</label>
-        <input id="codeEnfant" placeholder="ex. marie2026" autocomplete="off">
+        <input id="codeEnfant" placeholder="ex. marie2026" autocomplete="off" maxlength="40">
         <label for="urlSuivi">Adresse de suivi (donnée par tes parents)</label>
-        <input id="urlSuivi" placeholder="https://script.google.com/.../exec">
+        <input id="urlSuivi" placeholder="https://script.google.com/.../exec" autocomplete="off" maxlength="200">
         <div style="margin-top:12px" class="rangee">
           <button id="btnEnregistrerReglages">Enregistrer</button>
           <button class="sobre" id="btnEnvoyer" style="flex:0 0 auto">Envoyer ma progression</button>
         </div>
         <p class="doux petit" id="etatSuivi" style="margin:10px 0 0"></p>
+
+        <hr class="fin">
+        <h3>Changer mon mot de passe</h3>
+        <label for="chMdp">Nouveau mot de passe</label>
+        <input id="chMdp" type="password" autocomplete="new-password" maxlength="64">
+        <label for="chMdp2">Encore une fois</label>
+        <input id="chMdp2" type="password" autocomplete="new-password" maxlength="64">
+        <div style="margin-top:12px"><button class="sobre" id="btnChangerMdp">Changer</button></div>
+        <p class="petit" id="etatChMdp" style="margin:10px 0 0"></p>
+
+        <hr class="fin">
+        <h3>Supprimer mon compte</h3>
+        <p class="doux petit">Efface tes leçons, ton carnet et tes réglages de ce téléphone.</p>
+        <button class="sobre" id="btnSupprimerCompte" style="color:var(--rouge)">Supprimer mon compte</button>
       </div>
     </div>
   </section>
@@ -152,12 +255,17 @@ svg{max-width:100%;height:auto}
     <div id="contenuLecon"></div>
   </section>
 
+  <!-- ===== JEUX ===== -->
+  <section id="vue-jeux" class="masque">
+    <div id="zoneJeu"></div>
+  </section>
+
   <!-- ===== SIMULATEUR ===== -->
   <section id="vue-simu" class="masque">
     <h2>Si je mets de côté chaque mois</h2>
     <div class="carte">
       <label for="mensuel">Combien par mois ? (en francs CFA)</label>
-      <input id="mensuel" type="number" min="0" step="500" value="2000">
+      <input id="mensuel" type="number" min="0" max="10000000" step="500" value="2000">
       <label for="ageSimu">Ton âge aujourd'hui</label>
       <input id="ageSimu" type="number" min="5" max="25" value="10">
       <label for="rendement">Combien ça rapporte par an ?</label>
@@ -181,11 +289,11 @@ svg{max-width:100%;height:auto}
       <div class="rangee">
         <div style="flex:2 1 140px">
           <label for="opLibelle">Quoi ?</label>
-          <input id="opLibelle" placeholder="ex. argent de poche" autocomplete="off">
+          <input id="opLibelle" placeholder="ex. argent de poche" autocomplete="off" maxlength="60">
         </div>
         <div style="flex:1 1 110px">
           <label for="opMontant">Combien ?</label>
-          <input id="opMontant" type="number" step="100" placeholder="2000">
+          <input id="opMontant" type="number" min="0" max="10000000" step="100" placeholder="2000">
         </div>
       </div>
       <label for="opType">C'est quoi ?</label>
@@ -208,9 +316,10 @@ svg{max-width:100%;height:auto}
   </section>
 </div>
 
-<nav class="barre" role="tablist">
+<nav class="barre masque" id="barreNav" role="tablist">
   <button data-vue="accueil" aria-selected="true"><em>🏠</em>Accueil</button>
   <button data-vue="lecons" aria-selected="false"><em>📖</em>Leçons</button>
+  <button data-vue="jeux" aria-selected="false"><em>🎲</em>Jeux</button>
   <button data-vue="simu" aria-selected="false"><em>📈</em>Simulateur</button>
   <button data-vue="entreprises" aria-selected="false"><em>🏢</em>Entreprises</button>
   <button data-vue="carnet" aria-selected="false"><em>📓</em>Carnet</button>
@@ -225,12 +334,190 @@ var E = {
   },
   ecrire: function (c, v) {
     try { localStorage.setItem('mag_' + c, JSON.stringify(v)); } catch (e) {}
+  },
+  effacer: function (c) {
+    try { localStorage.removeItem('mag_' + c); } catch (e) {}
   }
 };
 
-var profil = E.lire('profil', null);
-var faites = E.lire('faites', []);
-var carnet = E.lire('carnet', []);
+/* ============ Garde-fous ============ */
+var MONTANT_MAX = 10000000;
+var RE_URL_SUIVI = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]{20,120}\/exec$/;
+var RE_CODE = /^[A-Za-z0-9_-]{4,40}$/;
+var TYPES_OP = ['recu', 'epargne', 'depense'];
+
+/* Tout texte saisi par l'enfant passe par ici avant d'entrer dans du HTML. */
+function esc(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+/* Retire les caractères de contrôle (tabulations invisibles comprises). */
+function nettoyer(s, max){
+  return String(s == null ? '' : s).replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u2028-\u202E]/g, ' ')
+    .replace(/\s+/g, ' ').trim().slice(0, max);
+}
+function montantValide(m){
+  m = Number(m);
+  return isFinite(m) && m > 0 && m <= MONTANT_MAX ? Math.round(m) : 0;
+}
+
+/* Relecture prudente : une donnée abîmée ou trafiquée est écartée au lieu
+   de casser l'application. */
+function lireProfil(p){
+  if (!p || typeof p !== 'object') return null;
+  var prenom = nettoyer(p.prenom, 30), age = parseInt(p.age, 10);
+  return prenom && age >= 6 && age <= 25 ? { prenom: prenom, age: age } : null;
+}
+function lireFaites(f){
+  return Array.isArray(f) ? f.filter(function(x){ return typeof x === 'string' && x.length < 40; }) : [];
+}
+function lireCarnet(c){
+  if (!Array.isArray(c)) return [];
+  return c.filter(function(o){
+    return o && typeof o === 'object' && TYPES_OP.indexOf(o.t) >= 0 && montantValide(o.m) > 0;
+  }).map(function(o){
+    return { d: /^\d{4}-\d{2}-\d{2}$/.test(o.d) ? o.d : '', lib: nettoyer(o.lib, 60), m: montantValide(o.m), t: o.t };
+  }).slice(0, 2000);
+}
+function lireSuivi(s){
+  if (!s || typeof s !== 'object') return { code: '', url: '' };
+  return { code: RE_CODE.test(s.code) ? s.code : '', url: RE_URL_SUIVI.test(s.url) ? s.url : '' };
+}
+
+/* ============ Comptes ============ */
+/* Chaque personne a son compte. Ses données (profil, leçons, carnet,
+   réglages de suivi) sont chiffrées avec une clé tirée de son mot de passe
+   (PBKDF2 puis AES-GCM). Sans le mot de passe, elles sont illisibles, même
+   pour quelqu'un qui fouille le stockage du navigateur.
+   Le mot de passe n'est jamais enregistré. Le prénom non plus : seule son
+   empreinte est gardée, pour retrouver le compte quand on le tape. Rien ne
+   permet d'afficher la liste des personnes inscrites. */
+var ITERATIONS = 150000;
+var MAX_COMPTES = 10;
+var VERROU_INACTIVITE_MS = 10 * 60 * 1000;
+var VERROU_ARRIERE_PLAN_MS = 3 * 60 * 1000;
+
+var session = null;            // { id, cle } tant que quelqu'un est connecté
+var profil = null, faites = [], carnet = [];
+var suivi = { code: '', url: '' };
+
+function vers64(buf){
+  var u = new Uint8Array(buf), s = '';
+  for (var i = 0; i < u.length; i += 8192) s += String.fromCharCode.apply(null, u.subarray(i, i + 8192));
+  return btoa(s);
+}
+function depuis64(s){
+  var b = atob(s), u = new Uint8Array(b.length);
+  for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+  return u;
+}
+function aleatoire(n){ var u = new Uint8Array(n); crypto.getRandomValues(u); return u; }
+function hex(buf){
+  return Array.prototype.map.call(new Uint8Array(buf), function(b){ return ('0' + b.toString(16)).slice(-2); }).join('');
+}
+
+/* « Marie », « MARIE », « marie » : même compte. « Émilie » = « Emilie ». */
+function prenomNormalise(p){
+  return nettoyer(p, 30).normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+function empreintePrenom(p){
+  var n = prenomNormalise(p);
+  if (!n) return Promise.resolve('');
+  return crypto.subtle.digest('SHA-256', new TextEncoder().encode('mag-prenom|' + n)).then(hex);
+}
+
+function deriverCle(mdp, sel, iterations){
+  return crypto.subtle.importKey('raw', new TextEncoder().encode(mdp), 'PBKDF2', false, ['deriveKey'])
+    .then(function(base){
+      return crypto.subtle.deriveKey(
+        { name: 'PBKDF2', salt: sel, iterations: iterations, hash: 'SHA-256' },
+        base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    });
+}
+function chiffrer(cle, objet){
+  var iv = aleatoire(12);
+  return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, cle, new TextEncoder().encode(JSON.stringify(objet)))
+    .then(function(ct){ return { v: 1, iv: vers64(iv), d: vers64(ct) }; });
+}
+function dechiffrer(cle, enr){
+  return crypto.subtle.decrypt({ name: 'AES-GCM', iv: depuis64(enr.iv) }, cle, depuis64(enr.d))
+    .then(function(pt){ return JSON.parse(new TextDecoder().decode(pt)); });
+}
+
+function lireComptes(){
+  var l = E.lire('comptes', []);
+  if (!Array.isArray(l)) return [];
+  return l.filter(function(c){
+    return c && /^[a-z0-9]{8,32}$/.test(c.id) && typeof c.sel === 'string' && /^[0-9a-f]{64}$/.test(c.h);
+  }).map(function(c){
+    return { id: c.id, h: c.h, sel: c.sel, it: (c.it >= 50000 && c.it <= 2000000) ? c.it : ITERATIONS };
+  }).slice(0, MAX_COMPTES);
+}
+function ecrireComptes(l){ E.ecrire('comptes', l); }
+function compteParEmpreinte(h){
+  return lireComptes().filter(function(c){ return c.h === h; })[0] || null;
+}
+
+/* Comptes créés par la version précédente, qui gardait le prénom en clair :
+   on le remplace par son empreinte. */
+function migrerComptes(){
+  var l = E.lire('comptes', []);
+  if (!Array.isArray(l) || !l.some(function(c){ return c && c.prenom && !c.h; })) return Promise.resolve();
+  return Promise.all(l.map(function(c){
+    if (!c || c.h || !c.prenom) return Promise.resolve(c);
+    return empreintePrenom(c.prenom).then(function(h){
+      return { id: c.id, h: h, sel: c.sel, it: c.it };
+    });
+  })).then(function(n){ ecrireComptes(n.filter(Boolean)); });
+}
+
+/* Enregistrement chiffré de l'état courant. Les écritures sont mises en file
+   pour que deux sauvegardes rapprochées ne se croisent pas. */
+var fileSauvegarde = Promise.resolve();
+function sauver(){
+  if (!session) return;
+  var s = session;
+  var etat = { profil: profil, faites: faites.slice(), carnet: carnet.slice(), suivi: suivi, jeux: lireJeux(jeux) };
+  fileSauvegarde = fileSauvegarde.then(function(){
+    return chiffrer(s.cle, etat).then(function(enr){ E.ecrire('c_' + s.id, enr); });
+  }).catch(function(){});
+}
+
+function chargerEtat(o){
+  profil = lireProfil(o && o.profil);
+  faites = lireFaites(o && o.faites);
+  carnet = lireCarnet(o && o.carnet);
+  suivi = lireSuivi(o && o.suivi);
+  jeux = lireJeux(o && o.jeux);
+}
+
+/* Anciennes données d'avant les comptes : reprises dans le premier compte créé. */
+function anciennesDonnees(){
+  var p = lireProfil(E.lire('profil', null));
+  if (!p) return null;
+  return { profil: p, faites: lireFaites(E.lire('faites', [])),
+           carnet: lireCarnet(E.lire('carnet', [])), suivi: lireSuivi(E.lire('suivi', null)) };
+}
+function effacerAnciennesDonnees(){
+  ['profil', 'faites', 'carnet', 'suivi', 'dernierEnvoi'].forEach(E.effacer);
+}
+
+/* Trop d'essais ratés : on fait patienter, de plus en plus longtemps.
+   Compté par prénom tapé, qu'il existe ou non. */
+function cleEssais(h){ return 'essais_' + h.slice(0, 16); }
+function essais(h){
+  var e = E.lire(cleEssais(h), null);
+  return e && typeof e.n === 'number' ? e : { n: 0, t: 0 };
+}
+function attenteRestante(h){ return Math.max(0, essais(h).t - Date.now()); }
+function noterEchec(h){
+  var e = essais(h); e.n += 1;
+  if (e.n >= 5) e.t = Date.now() + Math.min(15 * 60000, 30000 * Math.pow(2, e.n - 5));
+  E.ecrire(cleEssais(h), e);
+}
+function remettreEssais(h){ E.effacer(cleEssais(h)); }
 
 /* ============ Les leçons ============ */
 /* Chaque leçon vise un âge minimum : on ne montre pas un PER à un enfant de
@@ -425,8 +712,142 @@ var LECONS = [
   }
 ];
 
+/* ============ Dessins ============ */
+/* Petites scènes dessinées à la main, en SVG, pour accompagner chaque leçon.
+   Elles suivent le thème clair ou sombre. Aucune image externe. */
+function piece(x, y, rx){ rx = rx || 15; return '<ellipse class="o" cx="' + x + '" cy="' + y + '" rx="' + rx + '" ry="' + Math.round(rx / 3) + '"/>'; }
+function pile(x, base, n){ var s = ''; for (var i = 0; i < n; i++) s += piece(x, base - i * 8); return s; }
+function rond(x, y, r, cls){ return '<circle class="' + cls + '" cx="' + x + '" cy="' + y + '" r="' + r + '"/>'; }
+/* Un personnage tout simple : tête ronde, corps en cloche. k = échelle. */
+function perso(x, pied, cls, k){
+  k = k || 1;
+  var h = 34 * k, l = 15 * k;
+  return '<path class="' + cls + '" d="M' + (x - l) + ' ' + pied + ' Q' + (x - l - 2 * k) + ' ' + (pied - h + 4 * k) + ' ' + x + ' ' + (pied - h) +
+    ' Q' + (x + l + 2 * k) + ' ' + (pied - h + 4 * k) + ' ' + (x + l) + ' ' + pied + ' Z"/>' +
+    rond(x, pied - h - 11 * k, 10 * k, 'p');
+}
+function texte(x, y, t, cls){ return '<text class="' + (cls || 'm') + '" x="' + x + '" y="' + y + '">' + esc(t) + '</text>'; }
+function sol(y){ return '<path class="n" d="M8 ' + y + ' Q90 ' + (y - 4) + ' 160 ' + y + ' T312 ' + (y + 1) + '"/>'; }
+function dessin(label, corps){
+  return '<svg class="dessin" viewBox="0 0 320 170" role="img" aria-label="' + esc(label) + '">' + corps + '</svg>';
+}
+
+var DESSINS = {
+  accueil: function(){
+    return dessin("Un canari plein de pièces d'où pousse une plante", sol(150) +
+      rond(268, 38, 18, 'o') +
+      '<path class="n" d="M268 10 v-6 M296 38 h6 M240 38 h-6 M288 18 l4 -4 M248 18 l-4 -4"/>' +
+      '<path class="v" d="M160 92 Q150 60 128 52 Q146 48 158 70 Z"/>' +
+      '<path class="v" d="M162 80 Q172 44 198 40 Q182 52 166 86 Z"/>' +
+      '<path class="n gras" d="M160 104 Q158 80 162 56"/>' +
+      '<path class="t" d="M124 104 Q108 124 118 140 Q128 152 160 152 Q192 152 202 140 Q212 124 196 104 Z"/>' +
+      '<ellipse class="t" cx="160" cy="104" rx="38" ry="8"/>' +
+      piece(146, 102, 10) + piece(170, 101, 10) + piece(158, 97, 10) +
+      perso(62, 150, 'b', 1.15) + perso(96, 150, 'r', .8) +
+      texte(222, 166, 'un peu, souvent, longtemps'));
+  },
+  'depenser-garder': function(){
+    return dessin("Trois tas de pièces à dépenser, et un quatrième qui part dans le canari", sol(140) +
+      pile(40, 132, 4) + pile(80, 132, 4) + pile(120, 132, 4) +
+      texte(80, 160, '3 parts pour moi') +
+      '<path class="n pt" d="M150 104 Q166 26 214 40"/>' + piece(206, 40, 13) +
+      '<path class="t" d="M212 80 Q194 102 204 124 Q214 142 246 142 Q278 142 288 124 Q298 102 280 80 Z"/>' +
+      '<path class="t" d="M218 82 Q246 72 274 82 L272 70 Q246 62 220 70 Z"/>' +
+      '<ellipse class="l" cx="246" cy="69" rx="25" ry="5"/>' +
+      '<path class="n fin" d="M206 108 Q246 116 286 108"/>' +
+      texte(246, 160, '1 part pour plus tard'));
+  },
+  'argent-dort': function(){
+    var baguette = function(y){
+      return '<path class="o" d="M168 ' + y + ' Q214 ' + (y - 18) + ' 258 ' + (y - 6) + ' Q266 ' + (y + 2) + ' 258 ' + (y + 7) +
+        ' Q214 ' + (y + 20) + ' 170 ' + (y + 12) + ' Q162 ' + (y + 6) + ' 168 ' + y + ' Z"/>' +
+        '<path class="n fin" d="M190 ' + (y - 2) + ' l10 8 M212 ' + (y - 6) + ' l10 8 M234 ' + (y - 6) + ' l10 8"/>';
+    };
+    return dessin("Des billets cachés sous une natte, et un pain qui coûtait 100 F puis 150 F", sol(150) +
+      '<rect class="v" x="22" y="112" width="38" height="20" rx="3" transform="rotate(-8 41 122)"/>' +
+      '<rect class="b" x="78" y="114" width="38" height="20" rx="3" transform="rotate(6 97 124)"/>' +
+      '<path class="s" d="M14 124 L136 124 L146 146 L6 146 Z"/>' +
+      '<path class="n fin" d="M30 124 L24 146 M52 124 L48 146 M74 124 L74 146 M96 124 L100 146 M118 124 L124 146"/>' +
+      texte(72, 104, 'z z z', 'm') +
+      baguette(44) + '<rect class="c" x="266" y="30" width="44" height="22" rx="5"/>' + texte(288, 46, '100 F') +
+      '<path class="n pt" d="M214 66 v30"/><path class="n" d="M208 90 l6 8 l6 -8"/>' + texte(258, 86, 'dans 10 ans', 'm') +
+      baguette(116) + '<rect class="c" x="266" y="102" width="44" height="22" rx="5"/>' + texte(288, 118, '150 F') +
+      texte(214, 164, 'le même pain, plus cher'));
+  },
+  interets: function(){
+    var arbre = function(x, r, h, n){
+      var s = '<rect class="t" x="' + (x - 5) + '" y="' + (148 - h) + '" width="10" height="' + h + '" rx="3"/>' + rond(x, 148 - h - r + 6, r, 'v');
+      var cy = 148 - h - r + 6;
+      for (var i = 0; i < n; i++) {
+        var a = i * 2.4, d = r * .55;
+        s += rond(Math.round(x + Math.cos(a) * d), Math.round(cy + Math.sin(a) * d), 5, 'o');
+      }
+      return s;
+    };
+    return dessin("Un arbre à pièces qui grandit : petit après 1 an, très grand après 10 ans", sol(150) +
+      arbre(50, 16, 20, 2) + arbre(150, 28, 30, 5) + arbre(258, 44, 40, 12) +
+      texte(50, 166, '1 an') + texte(150, 166, '5 ans') + texte(258, 166, '10 ans'));
+  },
+  action: function(){
+    var cx = 220, cy = 82, r = 58, s = '<circle class="s" cx="' + cx + '" cy="' + cy + '" r="' + r + '"/>';
+    s += '<path class="o" d="M' + cx + ' ' + cy + ' L' + cx + ' ' + (cy - r) + ' A' + r + ' ' + r + ' 0 0 1 ' + (cx + 41) + ' ' + (cy - 41) + ' Z"/>';
+    for (var i = 0; i < 8; i++) {
+      var a = i * Math.PI / 4 - Math.PI / 2;
+      s += '<path class="n fin" d="M' + cx + ' ' + cy + ' L' + Math.round(cx + Math.cos(a) * r) + ' ' + Math.round(cy + Math.sin(a) * r) + '"/>';
+    }
+    return dessin("Une bouteille de bissap et l'entreprise découpée en parts : une part est une action", sol(150) +
+      '<rect class="o" x="50" y="34" width="20" height="10" rx="2"/>' +
+      '<path class="k" d="M52 44 L68 44 L68 56 Q84 64 84 82 L84 138 Q84 146 76 146 L44 146 Q36 146 36 138 L36 82 Q36 64 52 56 Z"/>' +
+      '<rect class="c" x="40" y="92" width="40" height="24" rx="3"/>' + texte(60, 108, 'jus') +
+      s + '<path class="n pt" d="M246 30 Q268 22 280 32"/>' + texte(290, 26, 'ta part', 'm') +
+      texte(220, 160, '8 parts = 8 actions'));
+  },
+  dividende: function(){
+    var p = '';
+    [[38, 'b'], [84, 'r'], [236, 'v'], [282, 'o']].forEach(function(q){
+      p += perso(q[0], 150, q[1], .9) + piece(q[0], 82, 9) +
+        '<path class="n pt fin" d="M160 64 Q' + Math.round((160 + q[0]) / 2) + ' 30 ' + q[0] + ' 74"/>';
+    });
+    return dessin("Le bénéfice de l'entreprise est partagé entre tous ses propriétaires", sol(150) + p +
+      '<path class="t" d="M116 92 Q160 150 204 92 Z"/>' + '<ellipse class="t" cx="160" cy="92" rx="44" ry="8"/>' +
+      piece(146, 88, 10) + piece(172, 88, 10) + piece(160, 82, 10) + piece(152, 76, 9) +
+      texte(160, 166, 'chacun reçoit sa part'));
+  },
+  risque: function(){
+    return dessin("Le prix monte et descend chaque année, mais sur dix ans la tendance monte",
+      '<path class="n" d="M24 20 L24 140 L304 140"/>' +
+      '<path class="n pt" d="M30 124 L296 46"/>' +
+      '<path class="n lo" d="M30 124 L50 108 L66 118 L90 92 L110 104 L134 82 L154 98 L178 72 L198 80 L222 58 L242 70 L266 42 L290 52"/>' +
+      rond(66, 118, 4, 'r') + rond(154, 98, 4, 'r') + rond(242, 70, 4, 'r') +
+      texte(46, 158, "aujourd'hui", 'm') + texte(276, 158, 'dans 10 ans', 'm') +
+      texte(130, 40, 'des hauts et des bas', 'm'));
+  },
+  fcp: function(){
+    var p = '';
+    [40, 100, 160, 220, 280].forEach(function(x, i){
+      p += perso(x, 58, ['b', 'r', 'v', 'o', 's'][i], .62) + '<path class="n pt fin" d="M' + x + ' 64 Q' + Math.round((x + 160) / 2) + ' 80 160 96"/>';
+    });
+    return dessin("Beaucoup de personnes mettent un peu d'argent dans un grand panier commun qui contient plusieurs entreprises", p +
+      '<rect class="b" x="110" y="80" width="22" height="26" rx="2"/><rect class="v" x="136" y="74" width="22" height="32" rx="2"/>' +
+      '<rect class="r" x="162" y="78" width="22" height="28" rx="2"/><rect class="o" x="188" y="72" width="22" height="34" rx="2"/>' +
+      '<path class="t" d="M92 100 L228 100 L212 150 L108 150 Z"/>' +
+      '<path class="n fin" d="M98 116 L222 116 M103 132 L217 132 M128 100 L132 150 M160 100 L160 150 M192 100 L188 150"/>' +
+      texte(160, 166, 'une caisse commune, plein d\'entreprises dedans'));
+  },
+  commencer: function(){
+    return dessin("Un parent et son enfant au guichet d'une SGI pour ouvrir un compte-titres", sol(150) +
+      '<rect class="c" x="150" y="12" width="120" height="28" rx="5"/>' + texte(210, 31, 'SGI') +
+      perso(232, 112, 'b', .95) +
+      '<rect class="t" x="140" y="96" width="160" height="54" rx="4"/>' +
+      '<rect class="c" x="170" y="86" width="50" height="14" rx="2" transform="rotate(-6 195 93)"/>' +
+      perso(64, 150, 'v', 1.15) + perso(108, 150, 'r', .78) +
+      texte(220, 166, 'ouvrir un compte-titres'));
+  }
+};
+function illustration(cle){ return DESSINS[cle] ? DESSINS[cle]() : ''; }
+
 /* ============ Utilitaires ============ */
-function f(n){ return Math.round(n).toLocaleString('fr-FR').replace(/\u202f|,/g,' '); }
+function f(n){ return Math.round(n).toLocaleString('fr-FR').replace(/ |,/g,' '); }
 function $(s){ return document.querySelector(s); }
 function niveauPourAge(a){ return a <= 8 ? 1 : (a <= 11 ? 2 : (a <= 14 ? 3 : 4)); }
 
@@ -481,10 +902,10 @@ function dessinerEntreprises(){
   var h = '';
   ENTREPRISES.forEach(function(e){
     h += '<div class="carte"><div class="rangee" style="align-items:flex-start">' +
-      '<div><h3>' + e.nom + '</h3>' +
-      '<p class="doux petit" style="margin:0">' + e.secteur + ' · ' + e.pays + '</p></div>' +
-      '</div><p style="margin-top:10px">' + e.quoi + '</p>' +
-      '<p class="doux petit" style="margin:0"><strong>À retenir :</strong> ' + e.repere + '</p></div>';
+      '<div><h3>' + esc(e.nom) + '</h3>' +
+      '<p class="doux petit" style="margin:0">' + esc(e.secteur) + ' · ' + esc(e.pays) + '</p></div>' +
+      '</div><p style="margin-top:10px">' + esc(e.quoi) + '</p>' +
+      '<p class="doux petit" style="margin:0"><strong>À retenir :</strong> ' + esc(e.repere) + '</p></div>';
   });
   h += '<div class="carte"><h3>Comment on choisit</h3>' +
     '<p>Connaître une marque ne suffit pas. Avant d\'acheter une part, on se ' +
@@ -498,9 +919,371 @@ function dessinerEntreprises(){
   document.getElementById('listeEntreprises').innerHTML = h;
 }
 
+/* ============ Jeux ============ */
+/* Cinq jeux ancrés dans la vie de tous les jours en Côte d'Ivoire et dans
+   l'UEMOA. Les prix sont des exemples arrondis, pas des prix officiels.
+   Le meilleur score de chaque jeu (0 à 3 étoiles) est gardé dans le compte
+   chiffré de l'enfant. */
+var jeux = {};
+function lireJeux(j){
+  var r = {};
+  if (j && typeof j === 'object') Object.keys(j).forEach(function(k){
+    var n = parseInt(j[k], 10);
+    if (/^[a-z-]{2,20}$/.test(k) && n >= 0 && n <= 3) r[k] = n;
+  });
+  return r;
+}
+function etoiles(n){ var s = ''; for (var i = 0; i < 3; i++) s += i < n ? '★' : '☆'; return s; }
+function hasard(n){ return Math.floor(Math.random() * n); }
+function melanger(t){ t = t.slice(); for (var i = t.length - 1; i > 0; i--){ var j = hasard(i + 1), x = t[i]; t[i] = t[j]; t[j] = x; } return t; }
+function zoneJeu(){ return $('#zoneJeu'); }
+function sur(sel, ev, fn){ zoneJeu().querySelectorAll(sel).forEach(function(el){ el.addEventListener(ev, function(){ fn(el); }); }); }
+
+function finirJeu(cle, n, html){
+  if (!(jeux[cle] >= n)) { jeux[cle] = n; sauver(); }
+  zoneJeu().innerHTML = '<div class="carte"><div class="etoiles">' + etoiles(n) + '</div>' + html +
+    '<div class="rangee" style="margin-top:14px"><button id="jRejouer">Rejouer</button>' +
+    '<button class="sobre" id="jRetour" style="flex:0 0 auto">Autres jeux</button></div></div>';
+  $('#jRejouer').addEventListener('click', function(){ lancerJeu(cle); });
+  $('#jRetour').addEventListener('click', dessinerJeux);
+  dessinerAccueil();
+  window.scrollTo(0, 0);
+}
+
+/* ---- Pièces et billets en francs CFA (dessins génériques) ---- */
+function jeton(v){
+  if (v >= 1000) {
+    var cls = { 1000: 'r', 2000: 'b', 5000: 'v', 10000: 'o' }[v] || 'v';
+    return '<svg class="dessin jeton" viewBox="0 0 84 46" role="img" aria-label="billet de ' + v + ' francs">' +
+      '<rect class="' + cls + '" x="3" y="3" width="78" height="40" rx="5"/><rect class="n fin" x="9" y="9" width="66" height="28" rx="3"/>' +
+      '<text class="m" x="42" y="28">' + f(v) + '</text></svg>';
+  }
+  return '<svg class="dessin jeton" viewBox="0 0 48 48" role="img" aria-label="pièce de ' + v + ' francs">' +
+    '<circle class="' + (v >= 200 ? 'o' : 's') + '" cx="24" cy="24" r="21"/><circle class="n fin" cx="24" cy="24" r="16"/>' +
+    '<text class="m" x="24" y="28" style="font-size:' + (v >= 100 ? 11.5 : 13) + 'px">' + v + '</text></svg>';
+}
+
+/* ================= 1. Rends la monnaie ================= */
+var ARTICLES = [
+  ['un pain', 150], ['des beignets', 100], ['un plat de garba', 600], ['un sachet d\'eau', 50],
+  ['un cahier', 350], ['une mangue', 175], ['un trajet en woro-woro', 300], ['des arachides', 125],
+  ['un jus de bissap', 200], ['un stylo', 150], ['de l\'alloco', 450], ['un savon', 275]
+];
+function jeuMonnaie(){
+  var tours = melanger(ARTICLES).slice(0, 5), t = 0, bons = 0;
+  function tour(){
+    if (t >= tours.length) {
+      var n = bons === 5 ? 3 : bons === 4 ? 2 : bons >= 3 ? 1 : 0;
+      finirJeu('monnaie', n, '<h3>' + bons + ' sur 5</h3><p>' +
+        (bons >= 4 ? 'Tu rends la monnaie comme un vrai commerçant du marché.' :
+         'Astuce : pars du prix et ajoute des pièces jusqu\'à arriver au billet donné. C\'est comme ça que font les vendeuses.') + '</p>');
+      return;
+    }
+    var a = tours[t], prix = a[1];
+    var possibles = [500, 1000, 2000].filter(function(v){ return v > prix; });
+    var paye = possibles[hasard(Math.min(2, possibles.length))];
+    var attendu = paye - prix, rendu = [];
+    function dessiner(msg){
+      var total = rendu.reduce(function(s, v){ return s + v; }, 0);
+      zoneJeu().innerHTML = '<div class="carte"><p class="doux petit">Client ' + (t + 1) + ' sur 5</p>' +
+        '<p>Le client achète <strong>' + esc(a[0]) + '</strong> à <strong>' + f(prix) + ' F</strong>. ' +
+        'Il te donne ' + jeton(paye) + '</p><p>Rends-lui sa monnaie en touchant les pièces et les billets.</p>' +
+        '<div class="jetons">' + [25, 50, 100, 200, 250, 500, 1000].map(function(v){
+          return '<button data-v="' + v + '">' + jeton(v) + '</button>'; }).join('') + '</div>' +
+        '<p class="doux petit" style="margin:0">Tu rends (touche une pièce pour la reprendre) :</p><div class="bourse jetons" style="margin:8px 0">' +
+          rendu.map(function(v, k){ return '<button data-k="' + k + '">' + jeton(v) + '</button>'; }).join('') + '</div>' +
+        '<p><strong>' + f(total) + ' F</strong></p>' + (msg || '') +
+        '<div class="rangee"><button id="jValider">Donner la monnaie</button><button class="sobre" id="jEffacer" style="flex:0 0 auto">Tout reprendre</button></div></div>';
+      sur('.jetons button[data-v]', 'click', function(b){ if (rendu.length < 14) { rendu.push(parseInt(b.dataset.v, 10)); dessiner(); } });
+      sur('.bourse button[data-k]', 'click', function(b){ rendu.splice(parseInt(b.dataset.k, 10), 1); dessiner(); });
+      $('#jEffacer').addEventListener('click', function(){ rendu = []; dessiner(); });
+      $('#jValider').addEventListener('click', function(){
+        var ok = total === attendu;
+        if (ok) bons++;
+        zoneJeu().innerHTML = '<div class="carte"><h3 class="' + (ok ? 'vert' : 'rouge') + '">' + (ok ? 'Bien rendu !' : 'Pas tout à fait.') + '</h3>' +
+          '<p>' + f(paye) + ' − ' + f(prix) + ' = <strong>' + f(attendu) + ' F</strong> à rendre.' +
+          (ok ? '' : ' Tu as rendu ' + f(total) + ' F.') + '</p><button id="jSuite">Client suivant</button></div>';
+        $('#jSuite').addEventListener('click', function(){ t++; tour(); });
+      });
+    }
+    dessiner();
+  }
+  tour();
+}
+
+/* ================= 2. La semaine au marché ================= */
+var ACHATS = [
+  { n: 'Le woro-woro pour aller à l\'école (5 jours)', p: 1000, b: true },
+  { n: 'Le goûter de la semaine', p: 750, b: true },
+  { n: 'Un cahier pour la classe', p: 300, b: true },
+  { n: 'Des bonbons', p: 200, b: false },
+  { n: 'Une glace', p: 250, b: false },
+  { n: 'Du crédit pour un jeu sur téléphone', p: 1000, b: false },
+  { n: 'Un maillot de foot', p: 2500, b: false },
+  { n: 'Un livre d\'histoires', p: 500, b: false }
+];
+function jeuMarche(){
+  var BUDGET = 3000, pris = {}, liste = melanger(ACHATS);
+  function dessiner(msg){
+    var total = liste.reduce(function(s, a, i){ return s + (pris[i] ? a.p : 0); }, 0);
+    zoneJeu().innerHTML = '<div class="carte"><h3>Ta semaine avec 3 000 F</h3>' +
+      '<p>Tes parents te donnent <strong>3 000 F</strong> pour la semaine. Avec ça, tu dois payer ' +
+      'ton transport et ton goûter. Choisis ce que tu achètes.</p><div class="choix">' +
+      liste.map(function(a, i){
+        return '<button data-i="' + i + '" class="' + (pris[i] ? 'on' : '') + '">' + (pris[i] ? '✓ ' : '') + esc(a.n) +
+          ' <span class="doux">· ' + f(a.p) + ' F</span></button>'; }).join('') + '</div>' +
+      '<table><tr><td>Dépensé</td><td>' + f(total) + ' F</td></tr><tr><td>Il te reste</td><td class="vert">' + f(BUDGET - total) + ' F</td></tr></table>' +
+      (msg ? '<p class="alerte petit">' + msg + '</p>' : '') +
+      '<div style="margin-top:12px"><button id="jValider">J\'ai fini mes achats</button></div></div>';
+    sur('.choix button', 'click', function(b){
+      var i = parseInt(b.dataset.i, 10);
+      if (!pris[i] && total + liste[i].p > BUDGET) { dessiner('Pas assez d\'argent pour ça. Enlève autre chose d\'abord.'); return; }
+      pris[i] = !pris[i]; dessiner();
+    });
+    $('#jValider').addEventListener('click', function(){
+      var manque = liste.filter(function(a, i){ return a.b && !pris[i]; });
+      var reste = BUDGET - total;
+      var n = manque.length ? 0 : reste >= 750 ? 3 : reste > 0 ? 2 : 1;
+      var detail = '<ul class="liste">' + liste.map(function(a, i){
+        return '<li>' + (pris[i] ? '✓ ' : '· ') + esc(a.n) + ' <span class="pastille">' + (a.b ? 'besoin' : 'envie') + '</span></li>'; }).join('') + '</ul>';
+      finirJeu('marche', n,
+        (manque.length
+          ? '<h3>Attention</h3><p>Tu as oublié un <strong>besoin</strong> : ' + esc(manque[0].n.toLowerCase()) + '. Les besoins passent avant les envies, sinon la semaine devient difficile.</p>'
+          : '<h3>Semaine réussie</h3><p>Tous tes besoins sont payés et il te reste <strong>' + f(reste) + ' F</strong>.' +
+            (reste >= 750 ? ' C\'est plus d\'un quart : tu tiens la règle du canari.' : ' Essaie de garder un quart, soit 750 F, pour ton épargne.') + '</p>') +
+        '<p class="doux petit">Un <strong>besoin</strong>, c\'est ce dont tu ne peux pas te passer. Une <strong>envie</strong>, c\'est ce qui fait plaisir. ' +
+        'Les envies ne sont pas interdites : on les paie avec ce qui reste.</p>' + detail);
+    });
+  }
+  dessiner();
+}
+
+/* ================= 3. UEMOA et BCEAO ================= */
+var PAYS = [
+  ['Bénin', 1], ['Burkina Faso', 1], ['Côte d\'Ivoire', 1], ['Guinée-Bissau', 1], ['Mali', 1], ['Niger', 1],
+  ['Sénégal', 1], ['Togo', 1], ['Ghana', 0], ['Guinée', 0], ['Nigeria', 0], ['Cameroun', 0]
+];
+var QUESTIONS_BCEAO = [
+  { q: 'Qui émet les billets et les pièces de francs CFA que tu utilises ?', r: ['La BRVM', 'La BCEAO', 'Ta banque'], bon: 1,
+    exp: 'La BCEAO, la Banque Centrale des États de l\'Afrique de l\'Ouest. C\'est la banque des banques.' },
+  { q: 'Dans quelle ville se trouve le siège de la BCEAO ?', r: ['Abidjan', 'Dakar', 'Lomé'], bon: 1,
+    exp: 'À Dakar, au Sénégal. Elle a aussi des agences dans chacun des 8 pays.' },
+  { q: 'Où s\'achètent et se vendent les actions des entreprises de la région ?', r: ['À la BRVM, à Abidjan', 'À la BCEAO', 'Au grand marché'], bon: 0,
+    exp: 'À la Bourse Régionale des Valeurs Mobilières, à Abidjan. Elle est commune aux 8 pays.' },
+  { q: 'Un billet de 10 000 F reçu à Abidjan, peux-tu le dépenser à Dakar ou à Lomé ?', r: ['Oui, c\'est la même monnaie dans les 8 pays', 'Non, il faut le changer', 'Seulement dans les banques'], bon: 0,
+    exp: 'Oui. Les 8 pays de l\'UEMOA partagent le même franc CFA.' },
+  { q: 'Parmi ces missions, laquelle est celle de la BCEAO ?', r: ['Vendre des actions', 'Veiller à ce que les prix ne montent pas trop vite', 'Prêter de l\'argent aux enfants'], bon: 1,
+    exp: 'La BCEAO surveille les prix et les banques, pour que ton argent garde sa valeur.' }
+];
+function jeuUemoa(){
+  var choisis = {}, scoreA = 0;
+  function etapeA(){
+    zoneJeu().innerHTML = '<div class="carte"><h3>Les 8 pays du franc CFA de l\'Ouest</h3>' +
+      '<p>Touche les pays qui font partie de l\'<strong>UEMOA</strong>, l\'Union Économique et Monétaire Ouest-Africaine. Il y en a 8.</p>' +
+      '<div class="choix grille">' + PAYS.map(function(p, i){
+        return '<button data-i="' + i + '" class="' + (choisis[i] ? 'on' : '') + '">' + (choisis[i] ? '✓ ' : '') + esc(p[0]) + '</button>'; }).join('') +
+      '</div><p class="doux petit">' + Object.keys(choisis).filter(function(k){ return choisis[k]; }).length + ' choisi(s)</p>' +
+      '<button id="jValider">Vérifier</button></div>';
+    sur('.choix button', 'click', function(b){ var i = b.dataset.i; choisis[i] = !choisis[i]; etapeA(); });
+    $('#jValider').addEventListener('click', function(){
+      var bons = 0, faux = 0;
+      PAYS.forEach(function(p, i){ if (choisis[i]) { if (p[1]) bons++; else faux++; } });
+      scoreA = Math.max(0, bons - faux) / 8;
+      zoneJeu().innerHTML = '<div class="carte"><h3>' + bons + ' bon(s), ' + faux + ' erreur(s)</h3><div class="choix grille">' +
+        PAYS.map(function(p, i){ return '<button disabled class="' + (p[1] ? 'bon' : (choisis[i] ? 'faux' : '')) + '">' + esc(p[0]) + '</button>'; }).join('') +
+        '</div><p class="doux petit">Le Ghana a le cedi, la Guinée le franc guinéen, le Nigeria le naira. ' +
+        'Le Cameroun utilise aussi un franc CFA, mais celui d\'Afrique centrale, géré par une autre banque centrale, la BEAC.</p>' +
+        '<button id="jSuite">Continuer</button></div>';
+      $('#jSuite').addEventListener('click', function(){ etapeB(0, 0); });
+    });
+  }
+  function etapeB(i, bons){
+    if (i >= QUESTIONS_BCEAO.length) {
+      var total = scoreA * .5 + (bons / QUESTIONS_BCEAO.length) * .5;
+      var n = total >= .9 ? 3 : total >= .7 ? 2 : total >= .5 ? 1 : 0;
+      finirJeu('uemoa', n, '<h3>Tu connais ta monnaie</h3><p>' + bons + ' bonne(s) réponse(s) sur ' + QUESTIONS_BCEAO.length + ' au quiz.</p>' +
+        '<p class="doux petit">À retenir : 8 pays, une seule monnaie, le franc CFA. La BCEAO, à Dakar, l\'émet et veille sur sa valeur. ' +
+        'La BRVM, à Abidjan, est la bourse commune.</p>');
+      return;
+    }
+    var q = QUESTIONS_BCEAO[i];
+    zoneJeu().innerHTML = '<div class="carte"><p class="doux petit">Question ' + (i + 1) + ' sur ' + QUESTIONS_BCEAO.length + '</p>' +
+      '<p><strong>' + esc(q.q) + '</strong></p><div class="choix">' +
+      q.r.map(function(r, j){ return '<button data-j="' + j + '">' + esc(r) + '</button>'; }).join('') + '</div><div id="jExp"></div></div>';
+    sur('.choix button', 'click', function(b){
+      var j = parseInt(b.dataset.j, 10), ok = j === q.bon;
+      zoneJeu().querySelectorAll('.choix button').forEach(function(x, k){ x.disabled = true; if (k === q.bon) x.classList.add('bon'); });
+      if (!ok) b.classList.add('faux');
+      $('#jExp').innerHTML = '<p class="doux petit">' + esc(q.exp) + '</p><button id="jSuite">Continuer</button>';
+      $('#jSuite').addEventListener('click', function(){ etapeB(i + 1, bons + (ok ? 1 : 0)); });
+    });
+  }
+  etapeA();
+}
+
+/* ================= 4. La tontine du quartier ================= */
+function jeuTontine(){
+  var AMIS = ['Awa', 'Koffi', 'Fatou', 'Yao'], MISE = 1000;
+  zoneJeu().innerHTML = '<div class="carte"><h3>La tontine du quartier</h3>' +
+    '<p>Toi et 4 amis, vous mettez chacun <strong>1 000 F par semaine</strong> dans une caisse. ' +
+    'Chaque semaine, une personne ramasse tout. Au bout de 5 semaines, tout le monde a ramassé une fois.</p>' +
+    '<p>Quelle semaine veux-tu ramasser la caisse ?</p><div class="choix grille">' +
+    [1, 2, 3, 4, 5].map(function(n){ return '<button data-n="' + n + '">Semaine ' + n + '</button>'; }).join('') + '</div></div>';
+  sur('.choix button', 'click', function(b){
+    var rang = parseInt(b.dataset.n, 10);
+    var ordre = melanger(AMIS); ordre.splice(rang - 1, 0, 'Toi');
+    var retard = Math.random() < .5 ? { semaine: 1 + hasard(4), qui: null } : null;
+    if (retard) {
+      var candidats = ordre.filter(function(p, i){ return p !== 'Toi' && i !== retard.semaine - 1; });
+      retard.qui = candidats[hasard(candidats.length)];
+    }
+    var sem = 0, paye = 0, recu = 0, journal = [], dette = 0;
+    function semaine(){
+      if (sem >= 5) { bilan(); return; }
+      var receveur = ordre[sem], caisse = 5 * MISE, note = '';
+      if (dette) { caisse += dette; note = retard.qui + ' rattrape son retard : la caisse est plus grosse.'; dette = 0; }
+      if (retard && retard.semaine === sem + 1) { caisse -= MISE; dette = MISE; note = retard.qui + ' n\'a pas pu payer cette semaine. Il promet de payer la semaine prochaine.'; }
+      paye += MISE;
+      if (receveur === 'Toi') recu += caisse;
+      journal.push('Semaine ' + (sem + 1) + ' : ' + (receveur === 'Toi' ? '<strong>tu ramasses ' + f(caisse) + ' F</strong>' : esc(receveur) + ' ramasse ' + f(caisse) + ' F') + (note ? ' <span class="doux">(' + esc(note) + ')</span>' : ''));
+      sem++;
+      zoneJeu().innerHTML = '<div class="carte"><h3>Semaine ' + sem + ' sur 5</h3><ul class="liste">' +
+        journal.map(function(l){ return '<li>' + l + '</li>'; }).join('') + '</ul>' +
+        '<table style="margin-top:10px"><tr><td>Tu as payé</td><td>' + f(paye) + ' F</td></tr><tr><td>Tu as ramassé</td><td class="vert">' + f(recu) + ' F</td></tr></table>' +
+        '<div style="margin-top:12px"><button id="jSuite">' + (sem < 5 ? 'Semaine suivante' : 'Voir le bilan') + '</button></div></div>';
+      $('#jSuite').addEventListener('click', semaine);
+    }
+    function bilan(){
+      var sens = rang === 1 ? 'Tu as ramassé 5 000 F dès le début, avant d\'avoir tout payé. C\'est comme si tes amis t\'avaient <strong>prêté</strong> de l\'argent, sans intérêt. Mais tu as dû continuer à payer ensuite, sans rien recevoir.'
+        : rang === 5 ? 'Tu as ramassé en dernier. Pour toi, la tontine a marché comme une <strong>épargne</strong> : tu as mis de côté chaque semaine. Mais tu as dû faire confiance à tout le monde pendant 5 semaines.'
+        : 'Tu étais au milieu : un peu prêt, un peu épargne. Tu as profité de la caisse avant la fin, et tu as continué à payer après.';
+      zoneJeu().innerHTML = '<div class="carte"><h3>Bilan</h3><p>Tu as payé ' + f(paye) + ' F et ramassé ' + f(recu) + ' F.</p><p>' + sens + '</p>' +
+        '<p><strong>Quel est le plus grand risque d\'une tontine ?</strong></p><div class="choix">' +
+        ['Que quelqu\'un parte sans payer, après avoir ramassé', 'Que l\'argent grandisse trop vite', 'Qu\'il y ait trop de semaines'].map(function(r, j){
+          return '<button data-j="' + j + '">' + esc(r) + '</button>'; }).join('') + '</div></div>';
+      sur('.choix button', 'click', function(b){
+        var ok = b.dataset.j === '0';
+        finirJeu('tontine', ok ? 3 : 1, '<h3>' + (ok ? 'Exactement' : 'Pas tout à fait') + '</h3>' +
+          '<p>Le vrai risque, c\'est la confiance : celui qui a déjà ramassé peut ne plus payer. ' +
+          'C\'est pour ça qu\'on fait une tontine avec des gens qu\'on connaît bien.</p>' +
+          '<p class="doux petit">Dans une tontine simple, tu récupères exactement ce que tu as mis, ni plus ni moins. ' +
+          'Sur un compte d\'épargne ou dans un FCP, ton argent rapporte un petit supplément en plus.</p>');
+      });
+    }
+    semaine();
+  });
+}
+
+/* ================= 5. Le jus de bissap à la récré ================= */
+var METEO = [
+  { t: 'Il va faire très chaud', k: 1.3 }, { t: 'Temps normal', k: 1 }, { t: 'Il va pleuvoir', k: .6 }
+];
+function jeuBissap(){
+  var DEPART = 3000, COUT = 60, JOURS = 3;
+  var caisse = DEPART, jour = 0, histo = [];
+  zoneJeu().innerHTML = '<div class="carte">' + illustration('action') + '<h3>Le jus de bissap à la récré</h3>' +
+    '<p>Tu as <strong>3 000 F</strong> pour lancer ta petite affaire. Chaque sachet de bissap te coûte <strong>60 F</strong> ' +
+    '(feuilles, sucre, sachet, glace). Tu choisis combien en préparer et à quel prix les vendre.</p>' +
+    '<p class="doux petit">Attention : le bissap ne se garde pas. Ce qui n\'est pas vendu le jour même est perdu.</p>' +
+    '<button id="jSuite">Ouvrir la boutique</button></div>';
+  $('#jSuite').addEventListener('click', jourDeVente);
+  function jourDeVente(){
+    if (jour >= JOURS) { bilan(); return; }
+    var meteo = METEO[hasard(3)], qte = Math.min(10, Math.floor(caisse / COUT / 5) * 5), prix = 100;
+    function dessiner(){
+      var max = Math.min(60, Math.floor(caisse / COUT));
+      zoneJeu().innerHTML = '<div class="carte"><h3>Jour ' + (jour + 1) + ' sur ' + JOURS + '</h3>' +
+        '<p>Dans ta caisse : <strong>' + f(caisse) + ' F</strong>. Météo : <strong>' + meteo.t + '</strong>.</p>' +
+        '<label>Combien de sachets préparer ?</label><div class="rangee">' +
+        '<button class="sobre" id="jMoins" style="flex:0 0 auto">− 5</button><div class="chiffre" style="text-align:center">' + qte + '</div>' +
+        '<button class="sobre" id="jPlus" style="flex:0 0 auto">+ 5</button></div>' +
+        '<p class="doux petit">Coût : ' + f(qte * COUT) + ' F (au plus ' + max + ' sachets avec ta caisse)</p>' +
+        '<label>Prix du sachet</label><div class="choix grille">' + [100, 150, 200].map(function(p){
+          return '<button data-p="' + p + '" class="' + (p === prix ? 'on' : '') + '">' + p + ' F</button>'; }).join('') + '</div>' +
+        '<div style="margin-top:12px"><button id="jVendre">Vendre !</button></div></div>';
+      $('#jMoins').addEventListener('click', function(){ qte = Math.max(0, qte - 5); dessiner(); });
+      $('#jPlus').addEventListener('click', function(){ qte = Math.min(max, qte + 5); dessiner(); });
+      sur('.choix button', 'click', function(b){ prix = parseInt(b.dataset.p, 10); dessiner(); });
+      $('#jVendre').addEventListener('click', function(){
+        var base = { 100: 40, 150: 28, 200: 16 }[prix];
+        var demande = Math.round(base * meteo.k * (.9 + Math.random() * .2));
+        var vendus = Math.min(qte, demande), recette = vendus * prix, cout = qte * COUT, gain = recette - cout;
+        caisse += gain; histo.push(gain);
+        zoneJeu().innerHTML = '<div class="carte"><h3>Fin du jour ' + (jour + 1) + '</h3><table>' +
+          '<tr><td>Élèves qui voulaient du bissap</td><td>' + demande + '</td></tr>' +
+          '<tr><td>Sachets vendus</td><td>' + vendus + ' sur ' + qte + '</td></tr>' +
+          '<tr><td>Recette (ventes)</td><td>' + f(recette) + ' F</td></tr>' +
+          '<tr><td>Coûts (ingrédients)</td><td>' + f(cout) + ' F</td></tr>' +
+          '<tr><td>Bénéfice du jour</td><td class="' + (gain >= 0 ? 'vert' : 'rouge') + '">' + (gain >= 0 ? '+' : '−') + ' ' + f(Math.abs(gain)) + ' F</td></tr></table>' +
+          '<p class="doux petit" style="margin-top:10px">' + (qte > demande ? (qte - demande) + ' sachet(s) jeté(s) : trop préparé.' :
+            demande > qte ? (demande - qte) + ' élève(s) repartis sans rien : tu aurais pu en vendre plus.' : 'Pile ce qu\'il fallait !') + '</p>' +
+          '<button id="jSuite">' + (jour + 1 < JOURS ? 'Jour suivant' : 'Voir le bilan') + '</button></div>';
+        jour++;
+        $('#jSuite').addEventListener('click', jourDeVente);
+      });
+    }
+    dessiner();
+  }
+  function bilan(){
+    var benef = caisse - DEPART;
+    zoneJeu().innerHTML = '<div class="carte"><h3>Bilan de la semaine</h3><p>Tu as commencé avec 3 000 F, tu as maintenant <strong>' + f(caisse) + ' F</strong>. ' +
+      'Ton bénéfice : <strong class="' + (benef >= 0 ? 'vert' : 'rouge') + '">' + f(benef) + ' F</strong>.</p>' +
+      '<p class="petit doux">Recette − coûts = bénéfice. C\'est le calcul que fait chaque entreprise de la BRVM, en beaucoup plus grand.</p>' +
+      '<p><strong>Que fais-tu de ton bénéfice ?</strong></p><div class="choix">' +
+      ['Je dépense tout', 'J\'en garde une partie pour acheter une glacière, et je partage le reste avec ma sœur qui m\'a aidé'].map(function(r, j){
+        return '<button data-j="' + j + '">' + esc(r) + '</button>'; }).join('') + '</div></div>';
+    sur('.choix button', 'click', function(b){
+      var n = benef >= 4000 ? 3 : benef >= 2000 ? 2 : benef > 0 ? 1 : 0;
+      finirJeu('bissap', n, '<h3>' + f(benef) + ' F de bénéfice</h3>' +
+        (b.dataset.j === '1'
+          ? '<p>C\'est exactement ce que font les entreprises : une partie du bénéfice est <strong>réinvestie</strong> pour grandir, ' +
+            'le reste est <strong>partagé</strong> entre ceux qui ont aidé. Ce partage, à la bourse, s\'appelle le <strong>dividende</strong>.</p>'
+          : '<p>Tout dépenser, c\'est possible. Mais la semaine prochaine, tu repars de zéro. Les entreprises gardent une partie ' +
+            'du bénéfice pour grandir, et partagent le reste : c\'est le <strong>dividende</strong>.</p>') +
+        '<p class="doux petit">Le bon prix n\'est ni le plus bas ni le plus haut : trop cher, peu d\'élèves achètent. Trop bas, tu gagnes peu sur chaque sachet.</p>');
+    });
+  }
+}
+
+/* ---- Catalogue des jeux ---- */
+var JEUX = [
+  { cle: 'monnaie', age: 7, titre: 'Rends la monnaie', resume: 'Tu tiens une petite boutique. Rends la monnaie juste à chaque client.', lancer: jeuMonnaie },
+  { cle: 'marche', age: 7, titre: 'Ta semaine avec 3 000 F', resume: 'Transport, goûter, bonbons… Besoin ou envie ? Fais tenir ta semaine.', lancer: jeuMarche },
+  { cle: 'uemoa', age: 9, titre: 'UEMOA et BCEAO', resume: 'Les 8 pays du franc CFA, la BCEAO, la BRVM : qui fait quoi ?', lancer: jeuUemoa },
+  { cle: 'tontine', age: 10, titre: 'La tontine du quartier', resume: 'Cinq amis, une caisse commune. Choisis ta semaine et découvre les risques.', lancer: jeuTontine },
+  { cle: 'bissap', age: 11, titre: 'Le jus de bissap à la récré', resume: 'Prépare, fixe ton prix, vends. Recette, coûts, bénéfice.', lancer: jeuBissap }
+];
+function jeuxDisponibles(){
+  var a = profil ? profil.age : 7;
+  return JEUX.filter(function(j){ return a >= j.age; });
+}
+function dessinerJeux(){
+  var h = '<h2>Jouer pour apprendre</h2>';
+  jeuxDisponibles().forEach(function(j){
+    h += '<div class="carte"><div class="rangee" style="align-items:flex-start"><div><h3>' + esc(j.titre) + '</h3>' +
+      '<p class="doux petit" style="margin:0">' + esc(j.resume) + '</p></div>' +
+      '<div style="flex:0 0 auto" class="etoiles">' + etoiles(jeux[j.cle] || 0) + '</div></div>' +
+      '<div style="margin-top:12px"><button data-jeu="' + j.cle + '">Jouer</button></div></div>';
+  });
+  var bloques = JEUX.length - jeuxDisponibles().length;
+  if (bloques) h += '<p class="doux petit">' + bloques + ' autre(s) jeu(x) t\'attendent quand tu seras plus grand.</p>';
+  zoneJeu().innerHTML = h;
+  sur('button[data-jeu]', 'click', function(b){ lancerJeu(b.dataset.jeu); });
+}
+function lancerJeu(cle){
+  var j = JEUX.filter(function(x){ return x.cle === cle; })[0];
+  if (!j) return;
+  j.lancer();
+  window.scrollTo(0, 0);
+}
+
 /* ============ Navigation ============ */
-var vues = ['accueil','lecons','simu','entreprises','carnet'];
+var vues = ['accueil','lecons','jeux','simu','entreprises','carnet'];
 function montrer(v){
+  if (!session) v = 'connexion';
+  $('#vue-connexion').classList.toggle('masque', v !== 'connexion');
+  $('#barreNav').classList.toggle('masque', v === 'connexion');
+  $('#btnQuitter').classList.toggle('masque', !session);
   vues.forEach(function(x){
     var el = document.getElementById('vue-' + x);
     if (el) el.classList.toggle('masque', x !== v);
@@ -511,6 +1294,7 @@ function montrer(v){
   if (v === 'lecons') dessinerLecons();
   if (v === 'entreprises') dessinerEntreprises();
   if (v === 'carnet') dessinerCarnet();
+  if (v === 'jeux') dessinerJeux();
   window.scrollTo(0,0);
 }
 document.querySelectorAll('.barre button').forEach(function(b){
@@ -519,15 +1303,16 @@ document.querySelectorAll('.barre button').forEach(function(b){
 
 /* ============ Accueil ============ */
 function dessinerAccueil(){
-  if (!profil){ $('#carteBienvenue').classList.remove('masque'); $('#carteProgres').classList.add('masque'); return; }
-  $('#carteBienvenue').classList.add('masque');
-  $('#carteProgres').classList.remove('masque');
+  if (!profil) return;
+  if (!$('#illusAccueil').innerHTML) $('#illusAccueil').innerHTML = illustration('accueil');
   $('#salut').textContent = 'Salut ' + profil.prenom;
   var dispo = leconsDisponibles();
   var finies = dispo.filter(function(l){ return faites.indexOf(l.cle) >= 0; }).length;
   var pct = dispo.length ? Math.round(finies / dispo.length * 100) : 0;
   $('#jaugeProgres').style.width = pct + '%';
-  $('#progresTexte').textContent = finies + ' leçon' + (finies>1?'s':'') + ' sur ' + dispo.length + ' terminée' + (finies>1?'s':'') + '.';
+  var et = jeuxDisponibles().reduce(function(s, j){ return s + (jeux[j.cle] || 0); }, 0);
+  $('#progresTexte').textContent = finies + ' leçon' + (finies>1?'s':'') + ' sur ' + dispo.length + ' terminée' + (finies>1?'s':'') +
+    ' · ' + et + ' étoile' + (et>1?'s':'') + ' sur ' + (jeuxDisponibles().length * 3) + ' dans les jeux.';
   $('#badge').textContent = 'Niveau ' + niveauPourAge(profil.age);
   var n = niveauPourAge(profil.age);
   $('#niveauTexte').textContent = n === 1 ? "On commence par les bases de l'argent."
@@ -536,16 +1321,190 @@ function dessinerAccueil(){
     : "On parle de vrais placements.";
 }
 
-$('#btnDemarrer').addEventListener('click', function(){
-  var p = $('#prenom').value.trim();
-  var a = parseInt($('#age').value, 10);
-  if (!p || !a || a < 6){ alert('Indique ton prénom et ton âge.'); return; }
-  profil = { prenom: p, age: a };
-  E.ecrire('profil', profil);
-  $('#ageSimu').value = a;
+/* ============ Écran de connexion ============ */
+function carteConnexion(nom){
+  ['carteEntree', 'carteCreer', 'carteOubli'].forEach(function(c){
+    document.getElementById(c).classList.toggle('masque', c !== nom);
+  });
+}
+
+function ecranEntree(){
+  $('#mdp').value = '';
+  $('#etatMdp').textContent = '';
+  carteConnexion('carteEntree');
+  // Premier lancement après la mise à jour : on propose de protéger le compte existant.
+  if (!lireComptes().length && anciennesDonnees()) ouvrirCreation();
+}
+
+function entrer(){
+  var etat = $('#etatMdp');
+  var prenom = $('#logPrenom').value, mdp = $('#mdp').value;
+  if (!prenomNormalise(prenom) || !mdp){
+    etat.className = 'petit alerte'; etat.textContent = 'Tape ton prénom et ton mot de passe.'; return;
+  }
+  $('#btnEntrer').disabled = true;
+  etat.className = 'petit doux'; etat.textContent = 'Ouverture…';
+  empreintePrenom(prenom).then(function(h){
+    var attente = attenteRestante(h);
+    if (attente > 0) throw { attente: attente };
+    var c = compteParEmpreinte(h);
+    var enr = c ? E.lire('c_' + c.id, null) : null;
+    // Prénom inconnu ou mauvais mot de passe : même réponse, même délai.
+    var sel = c ? depuis64(c.sel) : aleatoire(16);
+    return deriverCle(mdp, sel, c ? c.it : ITERATIONS).then(function(cle){
+      if (!c || !enr || !enr.iv || !enr.d) throw { h: h };
+      return dechiffrer(cle, enr).then(function(o){ return { c: c, h: h, cle: cle, o: o }; },
+                                       function(){ throw { h: h }; });
+    });
+  }).then(function(r){
+    remettreEssais(r.h);
+    $('#logPrenom').value = ''; $('#mdp').value = '';
+    etat.textContent = '';
+    ouvrirSession(r.c.id, r.cle, r.o);
+  }).catch(function(err){
+    etat.className = 'petit alerte';
+    if (err && err.attente) {
+      etat.textContent = 'Trop d\'essais. Réessaie dans ' + Math.ceil(err.attente / 1000) + ' secondes.';
+    } else {
+      if (err && err.h) noterEchec(err.h);
+      etat.textContent = 'Prénom ou mot de passe incorrect.';
+    }
+    $('#mdp').value = '';
+  }).then(function(){ $('#btnEntrer').disabled = false; });
+}
+
+function ouvrirCreation(){
+  var anc = !lireComptes().length ? anciennesDonnees() : null;
+  $('#nvPrenom').value = anc ? anc.profil.prenom : '';
+  $('#nvAge').value = anc ? anc.profil.age : '';
+  $('#nvMdp').value = ''; $('#nvMdp2').value = '';
+  $('#etatCreer').textContent = '';
+  $('#noteMigration').classList.toggle('masque', !anc);
+  $('#btnAnnulerCreer').classList.toggle('masque', !!anc);
+  carteConnexion('carteCreer');
+}
+
+function creerCompte(){
+  var etat = $('#etatCreer');
+  etat.className = 'petit alerte';
+  var prenom = nettoyer($('#nvPrenom').value, 30);
+  var age = parseInt($('#nvAge').value, 10);
+  var m1 = $('#nvMdp').value, m2 = $('#nvMdp2').value;
+  var l = lireComptes();
+  if (!prenomNormalise(prenom)){ etat.textContent = 'Écris un prénom.'; return; }
+  if (!(age >= 6 && age <= 25)){ etat.textContent = 'L\'âge doit être entre 6 et 25 ans.'; return; }
+  if (m1.length < 4){ etat.textContent = 'Le mot de passe doit faire au moins 4 caractères.'; return; }
+  if (m1 !== m2){ etat.textContent = 'Les deux mots de passe ne sont pas pareils.'; return; }
+  if (l.length >= MAX_COMPTES){ etat.textContent = 'Il y a déjà ' + MAX_COMPTES + ' comptes sur ce téléphone.'; return; }
+
+  var anc = !l.length ? anciennesDonnees() : null;
+  var depart = anc
+    ? { profil: { prenom: prenom, age: age }, faites: anc.faites, carnet: anc.carnet, suivi: anc.suivi }
+    : { profil: { prenom: prenom, age: age }, faites: [], carnet: [], suivi: { code: '', url: '' } };
+  var id = hex(aleatoire(8));
+  var sel = aleatoire(16);
+
+  $('#btnCreer').disabled = true;
+  etat.className = 'petit doux'; etat.textContent = 'Création…';
+  empreintePrenom(prenom).then(function(h){
+    if (compteParEmpreinte(h)) throw { doublon: true };
+    return deriverCle(m1, sel, ITERATIONS).then(function(cle){
+      return chiffrer(cle, depart).then(function(enr){
+        E.ecrire('c_' + id, enr);
+        l.push({ id: id, h: h, sel: vers64(sel), it: ITERATIONS });
+        ecrireComptes(l);
+        if (anc) effacerAnciennesDonnees();
+        ouvrirSession(id, cle, depart);
+      });
+    });
+  }).catch(function(err){
+    etat.className = 'petit alerte';
+    etat.textContent = err && err.doublon
+      ? 'Ce prénom a déjà un compte sur ce téléphone. Ajoute l\'initiale de ton nom (ex. Marie K.).'
+      : 'La création a échoué. Le stockage du navigateur est peut-être bloqué.';
+  }).then(function(){ $('#btnCreer').disabled = false; });
+}
+
+function ouvrirOubli(){
+  $('#confOubli').value = $('#logPrenom').value;
+  $('#etatOubli').textContent = '';
+  carteConnexion('carteOubli');
+}
+
+function supprimerCompte(id){
+  E.effacer('c_' + id);
+  ecrireComptes(lireComptes().filter(function(c){ return c.id !== id; }));
+}
+
+function ouvrirSession(id, cle, o){
+  session = { id: id, cle: cle };
+  chargerEtat(o);
+  dernierEnvoiMs = 0;
+  leconActive = 0;
+  $('#ageSimu').value = profil ? profil.age : 10;
+  $('#resultatSimu').innerHTML = '';
+  $('#zoneReglages').classList.add('masque');
   dessinerAccueil();
-  montrer('lecons');
+  montrer('accueil');
+  relancerMinuterie();
+}
+
+/* Verrouillage : on oublie la clé et toutes les données en mémoire, et on
+   vide l'affichage. La personne suivante ne voit rien de la précédente. */
+function verrouiller(){
+  session = null;
+  profil = null; faites = []; carnet = []; suivi = { code: '', url: '' }; jeux = {};
+  clearTimeout(minuterie);
+  ['#resumeCarnet', '#contenuLecon', '#rubanLecons', '#resultatSimu', '#zoneJeu'].forEach(function(s){ $(s).innerHTML = ''; });
+  ['#opLibelle', '#opMontant', '#codeEnfant', '#urlSuivi', '#chMdp', '#chMdp2', '#mdp', '#logPrenom', '#confOubli']
+    .forEach(function(s){ $(s).value = ''; });
+  $('#salut').textContent = 'Salut';
+  $('#zoneReglages').classList.add('masque');
+  ecranEntree();
+  montrer('connexion');
+}
+
+var minuterie = null;
+function relancerMinuterie(){
+  clearTimeout(minuterie);
+  if (session) minuterie = setTimeout(verrouiller, VERROU_INACTIVITE_MS);
+}
+['click', 'keydown', 'touchstart'].forEach(function(ev){
+  document.addEventListener(ev, relancerMinuterie, { passive: true });
 });
+var cacheDepuis = 0;
+document.addEventListener('visibilitychange', function(){
+  if (document.hidden) { cacheDepuis = Date.now(); return; }
+  if (session && cacheDepuis && Date.now() - cacheDepuis > VERROU_ARRIERE_PLAN_MS) verrouiller();
+});
+
+$('#btnNouveau').addEventListener('click', ouvrirCreation);
+$('#btnAnnulerCreer').addEventListener('click', ecranEntree);
+$('#btnCreer').addEventListener('click', creerCompte);
+$('#btnEntrer').addEventListener('click', entrer);
+$('#logPrenom').addEventListener('keydown', function(e){ if (e.key === 'Enter') $('#mdp').focus(); });
+$('#mdp').addEventListener('keydown', function(e){ if (e.key === 'Enter') entrer(); });
+$('#nvMdp2').addEventListener('keydown', function(e){ if (e.key === 'Enter') creerCompte(); });
+$('#btnOublie').addEventListener('click', ouvrirOubli);
+$('#btnAnnulerOubli').addEventListener('click', ecranEntree);
+$('#btnEffacerCompte').addEventListener('click', function(){
+  var prenom = $('#confOubli').value;
+  var etat = $('#etatOubli');
+  etat.className = 'petit alerte';
+  if (!prenomNormalise(prenom)) { etat.textContent = 'Écris ton prénom.'; return; }
+  empreintePrenom(prenom).then(function(h){
+    var c = compteParEmpreinte(h);
+    if (!c) { etat.textContent = 'Aucun compte avec ce prénom sur ce téléphone.'; return; }
+    if (!confirm('Effacer le compte de ' + nettoyer(prenom, 30) + ' ? Ses leçons et son carnet seront perdus.')) return;
+    supprimerCompte(c.id);
+    remettreEssais(h);
+    etat.className = 'petit doux';
+    ecranEntree();
+    $('#etatMdp').className = 'petit doux';
+    $('#etatMdp').textContent = 'Compte effacé. Tu peux en créer un nouveau.';
+  });
+});
+$('#btnQuitter').addEventListener('click', verrouiller);
 
 /* ============ Leçons ============ */
 var leconActive = 0;
@@ -566,8 +1525,8 @@ function dessinerLecons(){
 }
 
 function afficherLecon(l){
-  var h = '<div class="carte"><h3>' + l.titre + '</h3>';
-  l.corps.forEach(function(p){ h += '<p>' + p + '</p>'; });
+  var h = '<div class="carte"><h3>' + esc(l.titre) + '</h3>' + illustration(l.cle);
+  l.corps.forEach(function(p){ h += '<p>' + esc(p) + '</p>'; });
   h += '</div><div class="carte quiz" id="zoneQuiz"><h3>À toi de jouer</h3><div id="questions"></div></div>';
   $('#contenuLecon').innerHTML = h;
   poserQuestion(l, 0, 0);
@@ -578,7 +1537,7 @@ function poserQuestion(l, i, score){
   if (i >= l.quiz.length){
     var reussi = score === l.quiz.length;
     if (reussi && faites.indexOf(l.cle) < 0){
-      faites.push(l.cle); E.ecrire('faites', faites);
+      faites.push(l.cle); sauver();
       try { envoyerProgression(false); } catch (e) {}
     }
     zone.innerHTML = '<p style="font-size:17px" class="' + (reussi ? 'vert' : 'or') + '">' +
@@ -590,8 +1549,8 @@ function poserQuestion(l, i, score){
     return;
   }
   var q = l.quiz[i];
-  var h = '<p class="doux petit">Question ' + (i+1) + ' sur ' + l.quiz.length + '</p><p><strong>' + q.q + '</strong></p>';
-  q.r.forEach(function(r, j){ h += '<button data-j="' + j + '">' + r + '</button>'; });
+  var h = '<p class="doux petit">Question ' + (i+1) + ' sur ' + l.quiz.length + '</p><p><strong>' + esc(q.q) + '</strong></p>';
+  q.r.forEach(function(r, j){ h += '<button data-j="' + j + '">' + esc(r) + '</button>'; });
   zone.innerHTML = h;
   zone.querySelectorAll('button').forEach(function(b){
     b.addEventListener('click', function(){
@@ -615,9 +1574,10 @@ function poserQuestion(l, i, score){
 
 /* ============ Simulateur ============ */
 $('#btnSimuler').addEventListener('click', function(){
-  var m = Math.max(0, parseFloat($('#mensuel').value) || 0);
+  var m = Math.min(MONTANT_MAX, Math.max(0, parseFloat($('#mensuel').value) || 0));
   var age = Math.min(25, Math.max(5, parseInt($('#ageSimu').value, 10) || 10));
   var r = parseFloat($('#rendement').value) || 0;
+  if ([0, 0.03, 0.06, 0.09].indexOf(r) < 0) r = 0.06;
   var mois = Math.max(1, (18 - age) * 12);
 
   var i = r > 0 ? Math.pow(1 + r, 1/12) - 1 : 0;
@@ -686,12 +1646,14 @@ $('#btnSimuler').addEventListener('click', function(){
 
 /* ============ Carnet ============ */
 $('#btnAjouterOp').addEventListener('click', function(){
-  var lib = $('#opLibelle').value.trim();
-  var m = parseFloat($('#opMontant').value) || 0;
+  var lib = nettoyer($('#opLibelle').value, 60);
+  var m = montantValide(parseFloat($('#opMontant').value));
   var t = $('#opType').value;
-  if (!lib || m <= 0){ alert('Indique ce que c\'est et combien.'); return; }
+  if (TYPES_OP.indexOf(t) < 0) t = 'recu';
+  if (!lib || m <= 0){ alert('Indique ce que c\'est et combien (10 000 000 F au maximum).'); return; }
   carnet.unshift({ d: new Date().toISOString().slice(0,10), lib: lib, m: m, t: t });
-  E.ecrire('carnet', carnet);
+  if (carnet.length > 2000) carnet.length = 2000;
+  sauver();
   $('#opLibelle').value = ''; $('#opMontant').value = '';
   dessinerCarnet();
 });
@@ -725,8 +1687,8 @@ function dessinerCarnet(){
     carnet.slice(0, 15).forEach(function(o){
       var c = o.t === 'epargne' ? 'vert' : (o.t === 'depense' ? 'rouge' : '');
       var signe = o.t === 'depense' ? '−' : '+';
-      h += '<li><div class="rangee"><div><strong>' + o.lib + '</strong>' +
-           '<div class="doux petit">' + o.d + '</div></div>' +
+      h += '<li><div class="rangee"><div><strong>' + esc(o.lib) + '</strong>' +
+           '<div class="doux petit">' + esc(o.d) + '</div></div>' +
            '<div style="flex:0 0 auto" class="' + c + '"><strong>' + signe + ' ' + f(o.m) + ' F</strong></div></div></li>';
     });
     h += '</ul><div style="margin-top:12px"><button class="sobre" id="btnVider">Tout effacer</button></div></div>';
@@ -734,15 +1696,17 @@ function dessinerCarnet(){
   $('#resumeCarnet').innerHTML = h;
   var bv = $('#btnVider');
   if (bv) bv.addEventListener('click', function(){
-    if (confirm('Effacer tout le carnet ?')){ carnet = []; E.ecrire('carnet', carnet); dessinerCarnet(); }
+    if (confirm('Effacer tout le carnet ?')){ carnet = []; sauver(); dessinerCarnet(); }
   });
 }
 
 
 /* ============ Suivi par les parents ============ */
-/* L'envoi ne part que si une adresse a été renseignée, et ne transmet que
-   des totaux : le détail du carnet reste sur l'appareil de l'enfant. */
-var suivi = E.lire('suivi', { code: '', url: '' });
+/* L'envoi ne part que si une adresse valide a été renseignée, et ne transmet
+   que des totaux : le détail du carnet reste sur l'appareil de l'enfant.
+   L'adresse doit être un script Google : impossible de faire envoyer la
+   progression vers un autre site, même si quelqu'un tape une fausse adresse. */
+var dernierEnvoiMs = 0;
 
 function totauxCarnet(){
   var recu = 0, eco = 0;
@@ -754,7 +1718,17 @@ function totauxCarnet(){
 }
 
 function envoyerProgression(manuel){
-  if (!suivi.url || !suivi.code || !profil) return;
+  var etat = document.getElementById('etatSuivi');
+  if (!suivi.url || !suivi.code || !profil) {
+    if (manuel && etat) etat.textContent = 'Renseigne ton code et une adresse de suivi valide.';
+    return;
+  }
+  var maintenant = Date.now();
+  if (maintenant - dernierEnvoiMs < 30000) {
+    if (manuel && etat) etat.textContent = 'Déjà envoyé il y a un instant. Patiente un peu.';
+    return;
+  }
+  dernierEnvoiMs = maintenant;
   var t = totauxCarnet();
   var dispo = leconsDisponibles();
   var p = new URLSearchParams({
@@ -767,11 +1741,9 @@ function envoyerProgression(manuel){
     recu: String(Math.round(t.recu)),
     epargne: String(Math.round(t.epargne))
   });
-  var etat = document.getElementById('etatSuivi');
   if (manuel && etat) etat.textContent = 'Envoi en cours…';
-  fetch(suivi.url + '?' + p.toString(), { method: 'GET', mode: 'no-cors' })
+  fetch(suivi.url + '?' + p.toString(), { method: 'GET', mode: 'no-cors', credentials: 'omit', referrerPolicy: 'no-referrer' })
     .then(function(){
-      E.ecrire('dernierEnvoi', new Date().toISOString());
       if (etat) etat.textContent = 'Progression envoyée. Merci !';
     })
     .catch(function(){
@@ -783,19 +1755,72 @@ var btnR = document.getElementById('btnReglages');
 if (btnR) btnR.addEventListener('click', function(){
   var z = document.getElementById('zoneReglages');
   z.classList.toggle('masque');
+  document.getElementById('regAge').value = profil ? profil.age : '';
   document.getElementById('codeEnfant').value = suivi.code || '';
   document.getElementById('urlSuivi').value = suivi.url || '';
+  document.getElementById('etatSuivi').textContent = '';
+  document.getElementById('etatChMdp').textContent = '';
 });
 
 var btnER = document.getElementById('btnEnregistrerReglages');
 if (btnER) btnER.addEventListener('click', function(){
-  suivi = {
-    code: document.getElementById('codeEnfant').value.trim(),
-    url: document.getElementById('urlSuivi').value.trim()
-  };
-  E.ecrire('suivi', suivi);
-  document.getElementById('etatSuivi').textContent =
-    suivi.url ? 'Réglages enregistrés.' : 'Aucune adresse : rien ne sera envoyé.';
+  var code = document.getElementById('codeEnfant').value.trim();
+  var url = document.getElementById('urlSuivi').value.trim();
+  var etat = document.getElementById('etatSuivi');
+  var age = parseInt(document.getElementById('regAge').value, 10);
+  if (!(age >= 6 && age <= 25)) {
+    etat.textContent = 'L\'âge doit être entre 6 et 25 ans.';
+    return;
+  }
+  if (url && !RE_URL_SUIVI.test(url)) {
+    etat.textContent = "Cette adresse n'est pas une adresse de suivi valide. Demande-la à tes parents.";
+    return;
+  }
+  if (url && !RE_CODE.test(code)) {
+    etat.textContent = 'Le code doit faire 4 à 40 caractères : lettres, chiffres, tiret.';
+    return;
+  }
+  suivi = { code: code, url: url };
+  if (profil && profil.age !== age) { profil = { prenom: profil.prenom, age: age }; $('#ageSimu').value = age; dessinerAccueil(); }
+  sauver();
+  etat.textContent = suivi.url ? 'Réglages enregistrés.' : 'Réglages enregistrés. Aucune adresse : rien ne sera envoyé.';
+});
+
+/* Nouveau mot de passe : nouveau sel, nouvelle clé, données rechiffrées. */
+$('#btnChangerMdp').addEventListener('click', function(){
+  var etat = $('#etatChMdp');
+  etat.className = 'petit alerte';
+  var m1 = $('#chMdp').value, m2 = $('#chMdp2').value;
+  if (!session) return;
+  if (m1.length < 4){ etat.textContent = 'Au moins 4 caractères.'; return; }
+  if (m1 !== m2){ etat.textContent = 'Les deux mots de passe ne sont pas pareils.'; return; }
+  var s = session, sel = aleatoire(16);
+  var etatDonnees = { profil: profil, faites: faites.slice(), carnet: carnet.slice(), suivi: suivi, jeux: lireJeux(jeux) };
+  etat.className = 'petit doux';
+  etat.textContent = 'Changement…';
+  fileSauvegarde = fileSauvegarde.then(function(){
+    return deriverCle(m1, sel, ITERATIONS).then(function(cle){
+      return chiffrer(cle, etatDonnees).then(function(enr){
+        E.ecrire('c_' + s.id, enr);
+        ecrireComptes(lireComptes().map(function(c){
+          return c.id === s.id ? { id: c.id, h: c.h, sel: vers64(sel), it: ITERATIONS } : c;
+        }));
+        if (session && session.id === s.id) session.cle = cle;
+        $('#chMdp').value = ''; $('#chMdp2').value = '';
+        etat.textContent = 'Mot de passe changé.';
+      });
+    });
+  }).catch(function(){
+    etat.className = 'petit alerte';
+    etat.textContent = 'Le changement a échoué. L\'ancien mot de passe reste valable.';
+  });
+});
+
+$('#btnSupprimerCompte').addEventListener('click', function(){
+  if (!session || !profil) return;
+  if (!confirm('Supprimer le compte de ' + profil.prenom + ' ? Les leçons et le carnet seront effacés de ce téléphone.')) return;
+  var id = session.id;
+  fileSauvegarde.then(function(){ supprimerCompte(id); verrouiller(); });
 });
 
 var btnEnv = document.getElementById('btnEnvoyer');
@@ -809,12 +1834,18 @@ $('#btnTheme').addEventListener('click', function(){
   E.ecrire('theme', n);
 });
 var th = E.lire('theme', null);
-if (th) document.documentElement.setAttribute('data-theme', th);
+if (th === 'dark' || th === 'light') document.documentElement.setAttribute('data-theme', th);
 
 /* ============ Démarrage ============ */
-if (profil){ $('#ageSimu').value = profil.age; }
-dessinerAccueil();
-montrer('accueil');
+/* À chaque ouverture, personne n'est connecté : il faut choisir son compte
+   et donner son mot de passe. */
+if (!window.crypto || !crypto.subtle) {
+  $('#carteEntree').innerHTML = '<h3>Navigateur non compatible</h3><p>Ouvre l\'application depuis son ' +
+    'adresse https, dans un navigateur à jour (Chrome, Safari, Firefox).</p>';
+  montrer('connexion');
+} else {
+  migrerComptes().catch(function(){}).then(verrouiller);
+}
 </script>
 </body>
 </html>
