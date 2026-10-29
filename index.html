@@ -3,9 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-XhYrG1MGDAkARf8+J2o2V42cJPv4mPoKOv6/D9rWa1o='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://script.google.com https://script.googleusercontent.com; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-rcOFruZ0EPMwgzUn8JyFZSZ7ZB/e+WEhoMJI1jrs4Sw='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://script.google.com https://script.googleusercontent.com; img-src 'self' data:; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Mon argent grandit</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#E2A33C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mon argent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Karla:wght@400;600;700&display=swap" rel="stylesheet">
@@ -129,16 +137,20 @@ hr.fin{border:0;border-top:1px solid var(--trait);margin:16px 0}
       <input id="mdp" type="password" autocomplete="current-password" maxlength="64">
       <div style="margin-top:14px"><button id="btnEntrer">Entrer</button></div>
       <p class="petit" id="etatMdp" style="margin:10px 0 0"></p>
+      <button class="sobre masque" id="btnAncien" style="margin-top:12px;width:100%">J'avais commencé avant la mise à jour : récupérer mes leçons et mon carnet</button>
       <div class="rangee" style="margin-top:14px">
         <button class="sobre" id="btnNouveau" style="flex:0 0 auto;padding:7px 12px;font-size:13px">Je n'ai pas encore de compte</button>
         <button class="sobre" id="btnOublie" style="flex:0 0 auto;padding:7px 12px;font-size:13px">Mot de passe oublié ?</button>
+        <button class="sobre" id="btnRecuperer" style="flex:0 0 auto;padding:7px 12px;font-size:13px">Récupérer mon compte</button>
+        <button class="sobre" id="btnParent" style="flex:0 0 auto;padding:7px 12px;font-size:13px">Espace parent</button>
       </div>
     </div>
 
     <div class="carte masque" id="carteCreer">
       <h3>Créer mon compte</h3>
-      <p class="doux petit masque" id="noteMigration">Tes leçons et ton carnet déjà sur ce téléphone seront gardés.
-         Il te suffit de choisir un mot de passe.</p>
+      <p class="doux petit masque" id="noteMigration">Tes leçons et ton carnet de l'ancienne version sont
+         toujours là. Tape ton prénom et choisis un mot de passe pour les protéger. Si tu as déjà un compte
+         à ton prénom, tape son mot de passe : tout sera regroupé dedans.</p>
       <label for="nvPrenom">Prénom</label>
       <input id="nvPrenom" placeholder="ex. Marie" autocomplete="off" autocapitalize="words" maxlength="30">
       <label for="nvAge">Âge</label>
@@ -148,8 +160,8 @@ hr.fin{border:0;border-top:1px solid var(--trait);margin:16px 0}
       <label for="nvMdp2">Encore une fois, pour vérifier</label>
       <input id="nvMdp2" type="password" autocomplete="new-password" maxlength="64">
       <p class="doux petit" style="margin:10px 0 0">Pour entrer, tu taperas ton prénom et ce mot de passe.
-         Retiens-le bien : si tu l'oublies, personne ne peut le retrouver, même pas
-         tes parents. C'est ce qui protège ton carnet.</p>
+         Si tu l'oublies un jour, un parent pourra débloquer ton compte avec le code parent,
+         sans rien effacer.</p>
       <div style="margin-top:14px" class="rangee">
         <button id="btnCreer">Créer</button>
         <button class="sobre" id="btnAnnulerCreer" style="flex:0 0 auto">Annuler</button>
@@ -159,17 +171,81 @@ hr.fin{border:0;border-top:1px solid var(--trait);margin:16px 0}
 
     <div class="carte masque" id="carteOubli">
       <h3>Mot de passe oublié</h3>
-      <p>Ton carnet est verrouillé avec ton mot de passe. Sans lui, personne ne peut
-         l'ouvrir, et c'est voulu : c'est ce qui le protège des autres.</p>
-      <p>La seule solution est d'effacer ton compte et d'en recréer un. Les leçons
-         validées et le carnet seront perdus.</p>
-      <label for="confOubli">Ton prénom</label>
-      <input id="confOubli" autocomplete="off" autocapitalize="words" maxlength="30">
-      <div style="margin-top:14px" class="rangee">
-        <button id="btnEffacerCompte" style="background:var(--rouge);color:#fff">Effacer mon compte</button>
-        <button class="sobre" id="btnAnnulerOubli" style="flex:0 0 auto">Annuler</button>
+      <div id="oubliFormulaire">
+        <p>Rien n'est perdu. Demande à un parent de taper le <strong>code parent</strong>, puis choisis
+           un nouveau mot de passe. Tes leçons, ton carnet et tes étoiles sont gardés.</p>
+        <label for="recPrenom">Ton prénom</label>
+        <input id="recPrenom" autocomplete="off" autocapitalize="words" maxlength="30">
+        <label for="recCode">Code parent (tapé par un parent)</label>
+        <input id="recCode" type="password" autocomplete="off" maxlength="64">
+        <label for="recMdp">Ton nouveau mot de passe</label>
+        <input id="recMdp" type="password" autocomplete="new-password" maxlength="64">
+        <label for="recMdp2">Encore une fois</label>
+        <input id="recMdp2" type="password" autocomplete="new-password" maxlength="64">
+        <div style="margin-top:14px"><button id="btnDebloquer">Débloquer mon compte</button></div>
+      </div>
+      <div id="oubliSansParent" class="masque">
+        <p>Pour retrouver un compte, il faut un <strong>code parent</strong> sur cet appareil. Il n'y en a pas encore.</p>
+        <p class="doux petit">Demande à un parent de le créer dans l'Espace parent. Ensuite, chaque compte est protégé
+           dès que l'enfant se connecte une fois.</p>
+        <button class="sobre" id="btnOubliVersParent">Espace parent</button>
       </div>
       <p class="petit" id="etatOubli" style="margin:10px 0 0"></p>
+      <div style="margin-top:12px"><button class="sobre" id="btnAnnulerOubli">Retour</button></div>
+    </div>
+
+    <div class="carte masque" id="carteParent">
+      <h3>Espace parent</h3>
+      <p class="doux petit" id="parentStatut"></p>
+      <div id="parentCreer">
+        <p>Le code parent permet de débloquer le compte d'un enfant qui a oublié son mot de passe,
+           sans rien effacer. Choisis un code que les enfants ne connaissent pas.</p>
+        <label for="parCode">Code parent (6 caractères au moins)</label>
+        <input id="parCode" type="password" autocomplete="new-password" maxlength="64">
+        <label for="parCode2">Encore une fois</label>
+        <input id="parCode2" type="password" autocomplete="new-password" maxlength="64">
+        <div style="margin-top:12px"><button id="btnCreerParent">Créer le code parent</button></div>
+      </div>
+      <div id="parentGerer" class="masque">
+        <h3 style="margin-top:6px">Changer le code parent</h3>
+        <label for="parAncien">Code actuel</label>
+        <input id="parAncien" type="password" autocomplete="off" maxlength="64">
+        <label for="parNouveau">Nouveau code</label>
+        <input id="parNouveau" type="password" autocomplete="new-password" maxlength="64">
+        <label for="parNouveau2">Encore une fois</label>
+        <input id="parNouveau2" type="password" autocomplete="new-password" maxlength="64">
+        <div style="margin-top:12px" class="rangee">
+          <button class="sobre" id="btnChangerParent" style="flex:0 0 auto">Changer</button>
+          <button class="sobre" id="btnOubliParent" style="flex:0 0 auto">J'ai oublié le code parent</button>
+        </div>
+        <hr class="fin">
+        <h3>Supprimer le compte d'un enfant</h3>
+        <p class="doux petit">Seulement si tu veux vraiment effacer ce compte de l'appareil.</p>
+        <label for="parSupPrenom">Prénom de l'enfant</label>
+        <input id="parSupPrenom" autocomplete="off" autocapitalize="words" maxlength="30">
+        <label for="parSupCode">Code parent</label>
+        <input id="parSupCode" type="password" autocomplete="off" maxlength="64">
+        <div style="margin-top:12px"><button class="sobre" id="btnSupParent" style="color:var(--rouge)">Supprimer ce compte</button></div>
+      </div>
+      <p class="petit" id="etatParent" style="margin:10px 0 0"></p>
+      <div style="margin-top:12px"><button class="sobre" id="btnRetourParent">Retour</button></div>
+    </div>
+
+    <div class="carte masque" id="carteImport">
+      <h3>Récupérer mon compte</h3>
+      <p>Tu as un nouveau téléphone ou une nouvelle tablette ? Sur l'ancien appareil, tu as créé un
+         fichier de sauvegarde (Réglages, « Changer d'appareil »). Choisis ce fichier ici.</p>
+      <label for="fichierImport">Fichier de sauvegarde</label>
+      <input id="fichierImport" type="file" accept=".json,application/json">
+      <label for="impPrenom">Ton prénom</label>
+      <input id="impPrenom" autocomplete="off" autocapitalize="words" maxlength="30">
+      <label for="impMdp">Ton mot de passe</label>
+      <input id="impMdp" type="password" autocomplete="current-password" maxlength="64">
+      <div style="margin-top:14px" class="rangee">
+        <button id="btnImporter">Récupérer</button>
+        <button class="sobre" id="btnAnnulerImport" style="flex:0 0 auto">Annuler</button>
+      </div>
+      <p class="petit" id="etatImport" style="margin:10px 0 0"></p>
     </div>
 
     <p class="doux petit">Chaque personne a son propre compte, protégé par son mot de passe.
@@ -189,6 +265,8 @@ hr.fin{border:0;border-top:1px solid var(--trait);margin:16px 0}
       </div>
       <div style="margin-top:14px" class="jauge"><span id="jaugeProgres" style="width:0%"></span></div>
       <p class="doux petit" style="margin:7px 0 0" id="progresTexte"></p>
+      <p class="petit masque" id="rappelSauvegarde" style="margin:10px 0 0;color:var(--bleu)">Pense à sauvegarder ton compte
+         (Réglages, « Changer d'appareil »), au cas où ton appareil serait perdu ou cassé.</p>
     </div>
     <div class="carte">
       <div id="illusAccueil"></div>
@@ -240,6 +318,15 @@ hr.fin{border:0;border-top:1px solid var(--trait);margin:16px 0}
         <input id="chMdp2" type="password" autocomplete="new-password" maxlength="64">
         <div style="margin-top:12px"><button class="sobre" id="btnChangerMdp">Changer</button></div>
         <p class="petit" id="etatChMdp" style="margin:10px 0 0"></p>
+
+        <hr class="fin">
+        <h3>Changer d'appareil</h3>
+        <p class="doux petit">Crée un fichier de sauvegarde de ton compte. Envoie-le sur ton nouvel appareil
+           (Bluetooth, câble, e-mail, Drive…), puis choisis « Récupérer mon compte » à l'écran d'entrée.
+           Le fichier est verrouillé par ton mot de passe : sans lui, personne ne peut le lire.</p>
+        <p class="doux petit" id="dateSauvegarde"></p>
+        <button class="sobre" id="btnExporter">Sauvegarder mon compte</button>
+        <p class="petit" id="etatExport" style="margin:10px 0 0"></p>
 
         <hr class="fin">
         <h3>Supprimer mon compte</h3>
@@ -455,7 +542,44 @@ function lireComptes(){
     return { id: c.id, h: c.h, sel: c.sel, it: (c.it >= 50000 && c.it <= 2000000) ? c.it : ITERATIONS };
   }).slice(0, MAX_COMPTES);
 }
-function ecrireComptes(l){ E.ecrire('comptes', l); }
+function ecrireComptes(l){
+  E.ecrire('comptes', l);
+  // Une fiche par compte, à part de la liste : si la liste venait à être
+  // abîmée, on la reconstruit au démarrage.
+  l.forEach(function(c){ E.ecrire('meta_' + c.id, { id: c.id, h: c.h, sel: c.sel, it: c.it }); });
+}
+/* Écriture des données d'un compte : la version précédente est gardée en
+   secours, au cas où une écriture serait interrompue (batterie, plantage). */
+function ecrireDonnees(id, enr){
+  try {
+    var avant = localStorage.getItem('mag_c_' + id);
+    if (avant) localStorage.setItem('mag_c_' + id + '_prec', avant);
+  } catch (e) {}
+  E.ecrire('c_' + id, enr);
+}
+function donneesValides(enr){ return enr && typeof enr.iv === 'string' && typeof enr.d === 'string'; }
+function clesStockage(){
+  var k = [];
+  try { for (var i = 0; i < localStorage.length; i++) k.push(localStorage.key(i)); } catch (e) {}
+  return k;
+}
+/* Au démarrage : chaque compte dont les données existent doit figurer dans
+   la liste. Rien n'est jamais effacé ici, on ne fait qu'ajouter. */
+function reparerComptes(){
+  var l = lireComptes(), ids = l.map(function(c){ return c.id; }), ajout = false;
+  clesStockage().forEach(function(k){
+    var m = /^mag_meta_([a-z0-9]{8,32})$/.exec(k || '');
+    if (!m || ids.indexOf(m[1]) >= 0) return;
+    var meta = E.lire('meta_' + m[1], null);
+    if (meta && /^[0-9a-f]{64}$/.test(meta.h) && typeof meta.sel === 'string' &&
+        (donneesValides(E.lire('c_' + m[1], null)) || donneesValides(E.lire('c_' + m[1] + '_prec', null)))) {
+      l.push({ id: m[1], h: meta.h, sel: meta.sel, it: (meta.it >= 50000 && meta.it <= 2000000) ? meta.it : ITERATIONS });
+      ids.push(m[1]); ajout = true;
+    }
+  });
+  if (ajout || l.length) ecrireComptes(l.slice(0, MAX_COMPTES));
+  E.ecrire('version', 5);
+}
 function compteParEmpreinte(h){
   return lireComptes().filter(function(c){ return c.h === h; })[0] || null;
 }
@@ -479,9 +603,9 @@ var fileSauvegarde = Promise.resolve();
 function sauver(){
   if (!session) return;
   var s = session;
-  var etat = { profil: profil, faites: faites.slice(), carnet: carnet.slice(), suivi: suivi, jeux: lireJeux(jeux) };
+  var etat = { profil: profil, faites: faites.slice(), carnet: carnet.slice(), suivi: suivi, jeux: lireJeux(jeux), sauvegarde: derniereSauvegarde };
   fileSauvegarde = fileSauvegarde.then(function(){
-    return chiffrer(s.cle, etat).then(function(enr){ E.ecrire('c_' + s.id, enr); });
+    return chiffrer(s.cle, etat).then(function(enr){ ecrireDonnees(s.id, enr); });
   }).catch(function(){});
 }
 
@@ -491,6 +615,7 @@ function chargerEtat(o){
   carnet = lireCarnet(o && o.carnet);
   suivi = lireSuivi(o && o.suivi);
   jeux = lireJeux(o && o.jeux);
+  derniereSauvegarde = (o && /^\d{4}-\d{2}-\d{2}$/.test(o.sauvegarde)) ? o.sauvegarde : '';
 }
 
 /* Anciennes données d'avant les comptes : reprises dans le premier compte créé. */
@@ -1295,6 +1420,7 @@ function montrer(v){
   if (v === 'entreprises') dessinerEntreprises();
   if (v === 'carnet') dessinerCarnet();
   if (v === 'jeux') dessinerJeux();
+  if (v === 'accueil') dessinerAccueil();
   window.scrollTo(0,0);
 }
 document.querySelectorAll('.barre button').forEach(function(b){
@@ -1313,6 +1439,9 @@ function dessinerAccueil(){
   var et = jeuxDisponibles().reduce(function(s, j){ return s + (jeux[j.cle] || 0); }, 0);
   $('#progresTexte').textContent = finies + ' leçon' + (finies>1?'s':'') + ' sur ' + dispo.length + ' terminée' + (finies>1?'s':'') +
     ' · ' + et + ' étoile' + (et>1?'s':'') + ' sur ' + (jeuxDisponibles().length * 3) + ' dans les jeux.';
+  var vieille = !derniereSauvegarde || (Date.now() - new Date(derniereSauvegarde).getTime()) > 30 * 86400000;
+  var actif = carnet.length > 0 || faites.length > 0 || Object.keys(jeux).length > 0;
+  $('#rappelSauvegarde').classList.toggle('masque', !(vieille && actif));
   $('#badge').textContent = 'Niveau ' + niveauPourAge(profil.age);
   var n = niveauPourAge(profil.age);
   $('#niveauTexte').textContent = n === 1 ? "On commence par les bases de l'argent."
@@ -1323,7 +1452,7 @@ function dessinerAccueil(){
 
 /* ============ Écran de connexion ============ */
 function carteConnexion(nom){
-  ['carteEntree', 'carteCreer', 'carteOubli'].forEach(function(c){
+  ['carteEntree', 'carteCreer', 'carteOubli', 'carteImport', 'carteParent'].forEach(function(c){
     document.getElementById(c).classList.toggle('masque', c !== nom);
   });
 }
@@ -1332,8 +1461,9 @@ function ecranEntree(){
   $('#mdp').value = '';
   $('#etatMdp').textContent = '';
   carteConnexion('carteEntree');
-  // Premier lancement après la mise à jour : on propose de protéger le compte existant.
-  if (!lireComptes().length && anciennesDonnees()) ouvrirCreation();
+  // Des données d'avant les comptes sont encore là : on propose de les récupérer.
+  $('#btnAncien').classList.toggle('masque', !anciennesDonnees());
+  if (!lireComptes().length && anciennesDonnees()) ouvrirCreation(true);
 }
 
 function entrer(){
@@ -1348,18 +1478,15 @@ function entrer(){
     var attente = attenteRestante(h);
     if (attente > 0) throw { attente: attente };
     var c = compteParEmpreinte(h);
-    var enr = c ? E.lire('c_' + c.id, null) : null;
     // Prénom inconnu ou mauvais mot de passe : même réponse, même délai.
-    var sel = c ? depuis64(c.sel) : aleatoire(16);
-    return deriverCle(mdp, sel, c ? c.it : ITERATIONS).then(function(cle){
-      if (!c || !enr || !enr.iv || !enr.d) throw { h: h };
-      return dechiffrer(cle, enr).then(function(o){ return { c: c, h: h, cle: cle, o: o }; },
-                                       function(){ throw { h: h }; });
-    });
+    if (!c) return deriverCle(mdp, aleatoire(16), ITERATIONS).then(function(){ throw { h: h }; });
+    return ouvrirCompteMdp(c, mdp).then(function(r){ return { c: c, h: h, cle: r.cle, o: r.o }; },
+                                         function(){ throw { h: h }; });
   }).then(function(r){
     remettreEssais(r.h);
     $('#logPrenom').value = ''; $('#mdp').value = '';
     etat.textContent = '';
+    proteger(r.c.id, r.cle);
     ouvrirSession(r.c.id, r.cle, r.o);
   }).catch(function(err){
     etat.className = 'petit alerte';
@@ -1373,14 +1500,16 @@ function entrer(){
   }).then(function(){ $('#btnEntrer').disabled = false; });
 }
 
-function ouvrirCreation(){
-  var anc = !lireComptes().length ? anciennesDonnees() : null;
-  $('#nvPrenom').value = anc ? anc.profil.prenom : '';
+var modeMigration = false;
+function ouvrirCreation(avecAnciennes){
+  var anc = avecAnciennes === true ? anciennesDonnees() : null;
+  modeMigration = !!anc;
+  $('#nvPrenom').value = '';
   $('#nvAge').value = anc ? anc.profil.age : '';
   $('#nvMdp').value = ''; $('#nvMdp2').value = '';
   $('#etatCreer').textContent = '';
   $('#noteMigration').classList.toggle('masque', !anc);
-  $('#btnAnnulerCreer').classList.toggle('masque', !!anc);
+  $('#btnAnnulerCreer').classList.toggle('masque', !!anc && !lireComptes().length);
   carteConnexion('carteCreer');
 }
 
@@ -1397,7 +1526,7 @@ function creerCompte(){
   if (m1 !== m2){ etat.textContent = 'Les deux mots de passe ne sont pas pareils.'; return; }
   if (l.length >= MAX_COMPTES){ etat.textContent = 'Il y a déjà ' + MAX_COMPTES + ' comptes sur ce téléphone.'; return; }
 
-  var anc = !l.length ? anciennesDonnees() : null;
+  var anc = modeMigration ? anciennesDonnees() : null;
   var depart = anc
     ? { profil: { prenom: prenom, age: age }, faites: anc.faites, carnet: anc.carnet, suivi: anc.suivi }
     : { profil: { prenom: prenom, age: age }, faites: [], carnet: [], suivi: { code: '', url: '' } };
@@ -1407,32 +1536,62 @@ function creerCompte(){
   $('#btnCreer').disabled = true;
   etat.className = 'petit doux'; etat.textContent = 'Création…';
   empreintePrenom(prenom).then(function(h){
-    if (compteParEmpreinte(h)) throw { doublon: true };
-    return deriverCle(m1, sel, ITERATIONS).then(function(cle){
-      return chiffrer(cle, depart).then(function(enr){
-        E.ecrire('c_' + id, enr);
+    var existant = compteParEmpreinte(h);
+    if (existant && anc) return fusionnerAnciennes(existant, h, m1, anc);
+    if (existant) throw { doublon: true };
+    return Promise.all([nouvelleCle(), deriverCle(m1, sel, ITERATIONS)]).then(function(k){
+      var cle = k[0];
+      return Promise.all([chiffrer(cle, depart), rangerCle(k[1], cle)]).then(function(r){
+        ecrireDonnees(id, r[0]);
+        E.ecrire('k_' + id, { v: 2, kp: r[1], kr: null });
         l.push({ id: id, h: h, sel: vers64(sel), it: ITERATIONS });
         ecrireComptes(l);
         if (anc) effacerAnciennesDonnees();
-        ouvrirSession(id, cle, depart);
+        return proteger(id, cle).then(function(){ ouvrirSession(id, cle, depart); });
       });
     });
   }).catch(function(err){
     etat.className = 'petit alerte';
     etat.textContent = err && err.doublon
       ? 'Ce prénom a déjà un compte sur ce téléphone. Ajoute l\'initiale de ton nom (ex. Marie K.).'
+      : err && err.msg ? err.msg
       : 'La création a échoué. Le stockage du navigateur est peut-être bloqué.';
   }).then(function(){ $('#btnCreer').disabled = false; });
 }
 
-function ouvrirOubli(){
-  $('#confOubli').value = $('#logPrenom').value;
-  $('#etatOubli').textContent = '';
-  carteConnexion('carteOubli');
+/* L'enfant a déjà recréé un compte après la mise à jour : on y ajoute ce
+   qu'il avait fait avant, sans rien perdre ni d'un côté ni de l'autre. */
+function fusionnerAnciennes(c, h, mdp, anc){
+  return ouvrirCompteMdp(c, mdp).catch(function(){
+    throw { msg: 'Ce prénom a déjà un compte ici. Tape le mot de passe de ce compte pour y ajouter tes anciennes leçons et ton carnet.' };
+  }).then(function(r){
+    var o = r.o || {};
+    var f = lireFaites(o.faites);
+    anc.faites.forEach(function(k){ if (f.indexOf(k) < 0) f.push(k); });
+    var vus = {}, carnetFusion = [];
+    lireCarnet(o.carnet).concat(anc.carnet).forEach(function(l){
+      var cle = l.d + '|' + l.lib + '|' + l.m + '|' + l.t;
+      if (!vus[cle]) { vus[cle] = 1; carnetFusion.push(l); }
+    });
+    carnetFusion.sort(function(a, b){ return a.d < b.d ? 1 : a.d > b.d ? -1 : 0; });
+    var sv = lireSuivi(o.suivi);
+    var fusion = { profil: lireProfil(o.profil) || anc.profil, faites: f, carnet: carnetFusion.slice(0, 2000),
+                   suivi: sv.url ? sv : anc.suivi, jeux: lireJeux(o.jeux), sauvegarde: o.sauvegarde || '' };
+    return chiffrer(r.cle, fusion).then(function(enr2){
+      ecrireDonnees(c.id, enr2);
+      effacerAnciennesDonnees();
+      remettreEssais(h);
+      proteger(c.id, r.cle);
+      ouvrirSession(c.id, r.cle, fusion);
+    });
+  });
 }
 
 function supprimerCompte(id){
   E.effacer('c_' + id);
+  E.effacer('c_' + id + '_prec');
+  E.effacer('meta_' + id);
+  E.effacer('k_' + id);
   ecrireComptes(lireComptes().filter(function(c){ return c.id !== id; }));
 }
 
@@ -1453,10 +1612,11 @@ function ouvrirSession(id, cle, o){
    vide l'affichage. La personne suivante ne voit rien de la précédente. */
 function verrouiller(){
   session = null;
-  profil = null; faites = []; carnet = []; suivi = { code: '', url: '' }; jeux = {};
+  profil = null; faites = []; carnet = []; suivi = { code: '', url: '' }; jeux = {}; derniereSauvegarde = '';
   clearTimeout(minuterie);
   ['#resumeCarnet', '#contenuLecon', '#rubanLecons', '#resultatSimu', '#zoneJeu'].forEach(function(s){ $(s).innerHTML = ''; });
-  ['#opLibelle', '#opMontant', '#codeEnfant', '#urlSuivi', '#chMdp', '#chMdp2', '#mdp', '#logPrenom', '#confOubli']
+  ['#opLibelle', '#opMontant', '#codeEnfant', '#urlSuivi', '#chMdp', '#chMdp2', '#mdp', '#logPrenom', '#recPrenom', '#recCode', '#recMdp', '#recMdp2', '#parCode', '#parCode2', '#parAncien',
+   '#parNouveau', '#parNouveau2', '#parSupPrenom', '#parSupCode', '#impPrenom', '#impMdp', '#fichierImport']
     .forEach(function(s){ $(s).value = ''; });
   $('#salut').textContent = 'Salut';
   $('#zoneReglages').classList.add('masque');
@@ -1478,7 +1638,8 @@ document.addEventListener('visibilitychange', function(){
   if (session && cacheDepuis && Date.now() - cacheDepuis > VERROU_ARRIERE_PLAN_MS) verrouiller();
 });
 
-$('#btnNouveau').addEventListener('click', ouvrirCreation);
+$('#btnNouveau').addEventListener('click', function(){ ouvrirCreation(false); });
+$('#btnAncien').addEventListener('click', function(){ ouvrirCreation(true); });
 $('#btnAnnulerCreer').addEventListener('click', ecranEntree);
 $('#btnCreer').addEventListener('click', creerCompte);
 $('#btnEntrer').addEventListener('click', entrer);
@@ -1487,24 +1648,413 @@ $('#mdp').addEventListener('keydown', function(e){ if (e.key === 'Enter') entrer
 $('#nvMdp2').addEventListener('keydown', function(e){ if (e.key === 'Enter') creerCompte(); });
 $('#btnOublie').addEventListener('click', ouvrirOubli);
 $('#btnAnnulerOubli').addEventListener('click', ecranEntree);
-$('#btnEffacerCompte').addEventListener('click', function(){
-  var prenom = $('#confOubli').value;
+$('#btnQuitter').addEventListener('click', verrouiller);
+
+/* ============ Clés de compte et code parent ============ */
+/* Chaque compte a sa propre clé de données, tirée au hasard. Les données
+   sont chiffrées avec elle. Cette clé est ensuite rangée deux fois :
+     - verrouillée par le mot de passe de l'enfant ;
+     - verrouillée par le code parent de l'appareil, s'il existe.
+   Mot de passe oublié : un parent tape son code, la clé est retrouvée, et
+   l'enfant choisit un nouveau mot de passe. Rien n'est effacé ni rechiffré.
+   Le code parent fonctionne avec une paire de clés : la partie publique
+   permet de protéger le compte d'un enfant dès qu'il se connecte, sans que
+   le parent soit là ; seule la partie privée, verrouillée par le code,
+   permet de débloquer. */
+var RSA = { name: 'RSA-OAEP', hash: 'SHA-256' };
+
+function nouvelleCle(){
+  return crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+}
+function importerCle(brut){
+  return crypto.subtle.importKey('raw', brut, { name: 'AES-GCM' }, true, ['encrypt', 'decrypt']);
+}
+function rangerCle(cleMdp, cle){
+  return crypto.subtle.exportKey('raw', cle).then(function(brut){
+    var iv = aleatoire(12);
+    return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, cleMdp, brut)
+      .then(function(ct){ return { iv: vers64(iv), d: vers64(ct) }; });
+  });
+}
+function sortirCle(cleMdp, kp){
+  return crypto.subtle.decrypt({ name: 'AES-GCM', iv: depuis64(kp.iv) }, cleMdp, depuis64(kp.d)).then(importerCle);
+}
+function lireCles(id){
+  var k = E.lire('k_' + id, null);
+  return k && k.kp && typeof k.kp.iv === 'string' && typeof k.kp.d === 'string' ? k : null;
+}
+
+/* ---- Code parent ---- */
+function lireParent(){
+  var p = E.lire('parent', null);
+  return p && /^[0-9a-f]{16}$/.test(p.id) && typeof p.pub === 'string' && p.priv && p.sel ? p : null;
+}
+function clePubliqueParent(p){
+  return crypto.subtle.importKey('spki', depuis64(p.pub), RSA, false, ['encrypt']);
+}
+function clePriveeParent(p, code){
+  return deriverCle(code, depuis64(p.sel), p.it || ITERATIONS).then(function(k){
+    return crypto.subtle.decrypt({ name: 'AES-GCM', iv: depuis64(p.priv.iv) }, k, depuis64(p.priv.d));
+  }).then(function(pkcs8){
+    return crypto.subtle.importKey('pkcs8', pkcs8, RSA, false, ['decrypt']);
+  });
+}
+function creerParent(code){
+  var sel = aleatoire(16);
+  return crypto.subtle.generateKey({ name: 'RSA-OAEP', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' },
+                                   true, ['encrypt', 'decrypt']).then(function(paire){
+    return Promise.all([crypto.subtle.exportKey('spki', paire.publicKey), crypto.subtle.exportKey('pkcs8', paire.privateKey),
+                        deriverCle(code, sel, ITERATIONS)]);
+  }).then(function(r){
+    var iv = aleatoire(12);
+    return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, r[2], r[1]).then(function(ct){
+      var p = { id: hex(aleatoire(8)), pub: vers64(r[0]), sel: vers64(sel), it: ITERATIONS,
+                priv: { iv: vers64(iv), d: vers64(ct) }, date: aujourdhui() };
+      E.ecrire('parent', p);
+      return p;
+    });
+  });
+}
+/* Nouveau code parent à partir de l'ancien : même paire de clés, donc les
+   comptes déjà protégés le restent. */
+function changerCodeParent(ancien, nouveau){
+  var p = lireParent(), sel = aleatoire(16);
+  return deriverCle(ancien, depuis64(p.sel), p.it || ITERATIONS).then(function(k){
+    return crypto.subtle.decrypt({ name: 'AES-GCM', iv: depuis64(p.priv.iv) }, k, depuis64(p.priv.d));
+  }).then(function(pkcs8){
+    return deriverCle(nouveau, sel, ITERATIONS).then(function(k2){
+      var iv = aleatoire(12);
+      return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, k2, pkcs8).then(function(ct){
+        p.sel = vers64(sel); p.it = ITERATIONS; p.priv = { iv: vers64(iv), d: vers64(ct) };
+        E.ecrire('parent', p);
+      });
+    });
+  });
+}
+/* À chaque connexion : si le compte n'est pas encore protégé par le code
+   parent actuel, on le protège. Le parent n'a rien à faire. */
+function proteger(id, cle){
+  var p = lireParent(), k = lireCles(id);
+  if (!p || !k || (k.kr && k.kr.pid === p.id)) return Promise.resolve();
+  return Promise.all([clePubliqueParent(p), crypto.subtle.exportKey('raw', cle)]).then(function(r){
+    return crypto.subtle.encrypt(RSA, r[0], r[1]);
+  }).then(function(ct){
+    var k2 = lireCles(id);
+    if (!k2) return;
+    k2.kr = { pid: p.id, d: vers64(ct) };
+    E.ecrire('k_' + id, k2);
+  }).catch(function(){});
+}
+function estProtege(id){
+  var p = lireParent(), k = lireCles(id);
+  return !!(p && k && k.kr && k.kr.pid === p.id);
+}
+
+/* Ouvre un compte avec son mot de passe et renvoie { cle, o }.
+   Les comptes d'avant (données chiffrées directement par le mot de passe)
+   passent au nouveau format au passage, sans rien perdre. */
+function ouvrirCompteMdp(c, mdp){
+  var enr = E.lire('c_' + c.id, null), secours = E.lire('c_' + c.id + '_prec', null);
+  if (!donneesValides(enr)) enr = donneesValides(secours) ? secours : null;
+  return deriverCle(mdp, depuis64(c.sel), c.it).then(function(cleMdp){
+    if (!enr) throw new Error('vide');
+    var k = lireCles(c.id);
+    var lire = function(cle){
+      return dechiffrer(cle, enr).catch(function(){
+        if (donneesValides(secours) && secours !== enr) return dechiffrer(cle, secours);
+        throw new Error('mdp');
+      });
+    };
+    if (k) return sortirCle(cleMdp, k.kp).then(function(cle){
+      return lire(cle).then(function(o){ return { cle: cle, o: o }; });
+    });
+    // Ancien format : on lit, puis on passe à une clé de compte.
+    return lire(cleMdp).then(function(o){
+      return nouvelleCle().then(function(cle){
+        return Promise.all([chiffrer(cle, o), rangerCle(cleMdp, cle)]).then(function(r){
+          E.ecrire('c_' + c.id, r[0]);
+          E.effacer('c_' + c.id + '_prec');
+          E.ecrire('k_' + c.id, { v: 2, kp: r[1], kr: null });
+          return { cle: cle, o: o };
+        });
+      });
+    });
+  });
+}
+
+/* Nouveau mot de passe sur la clé de compte existante. */
+function changerMdpCompte(id, cle, mdp){
+  var sel = aleatoire(16);
+  return deriverCle(mdp, sel, ITERATIONS).then(function(cleMdp){ return rangerCle(cleMdp, cle); }).then(function(kp){
+    var k = lireCles(id) || { v: 2, kr: null };
+    k.kp = kp; k.v = 2;
+    E.ecrire('k_' + id, k);
+    ecrireComptes(lireComptes().map(function(c){
+      return c.id === id ? { id: c.id, h: c.h, sel: vers64(sel), it: ITERATIONS } : c;
+    }));
+  });
+}
+
+/* ---- Écran « Mot de passe oublié » ---- */
+function ouvrirOubli(){
+  $('#recPrenom').value = $('#logPrenom').value;
+  ['#recCode', '#recMdp', '#recMdp2'].forEach(function(s){ $(s).value = ''; });
+  $('#etatOubli').textContent = '';
+  $('#oubliSansParent').classList.toggle('masque', !!lireParent());
+  $('#oubliFormulaire').classList.toggle('masque', !lireParent());
+  carteConnexion('carteOubli');
+}
+
+function debloquerCompte(){
   var etat = $('#etatOubli');
   etat.className = 'petit alerte';
+  var prenom = $('#recPrenom').value, code = $('#recCode').value, m1 = $('#recMdp').value, m2 = $('#recMdp2').value;
+  var p = lireParent();
+  if (!p) return;
   if (!prenomNormalise(prenom)) { etat.textContent = 'Écris ton prénom.'; return; }
+  if (!code) { etat.textContent = 'Un parent doit taper le code parent.'; return; }
+  if (m1.length < 4) { etat.textContent = 'Le nouveau mot de passe doit faire au moins 4 caractères.'; return; }
+  if (m1 !== m2) { etat.textContent = 'Les deux mots de passe ne sont pas pareils.'; return; }
+  var attente = attenteRestante('parent' + p.id);
+  if (attente > 0) { etat.textContent = 'Trop d\'essais. Réessaie dans ' + Math.ceil(attente / 1000) + ' secondes.'; return; }
+  $('#btnDebloquer').disabled = true;
+  etat.className = 'petit doux'; etat.textContent = 'Déblocage…';
+  var compte, h;
+  empreintePrenom(prenom).then(function(hh){
+    h = hh; compte = compteParEmpreinte(h);
+    if (!compte) throw { msg: 'Aucun compte à ce prénom sur cet appareil.' };
+    var k = lireCles(compte.id);
+    if (!k || !k.kr || k.kr.pid !== p.id) throw { msg: 'Ce compte n\'est pas encore protégé par le code parent : il faut qu\'il se soit connecté au moins une fois depuis la création du code. Son mot de passe ne peut pas être retrouvé.' };
+    return clePriveeParent(p, code).catch(function(){ noterEchec('parent' + p.id); throw { msg: 'Code parent incorrect.' }; }).then(function(priv){
+      return crypto.subtle.decrypt(RSA, priv, depuis64(k.kr.d));
+    }).then(importerCle);
+  }).then(function(cle){
+    remettreEssais('parent' + p.id);
+    remettreEssais(h);
+    var enr = E.lire('c_' + compte.id, null), secours = E.lire('c_' + compte.id + '_prec', null);
+    return dechiffrer(cle, donneesValides(enr) ? enr : secours).catch(function(){ return dechiffrer(cle, secours); }).then(function(o){
+      return changerMdpCompte(compte.id, cle, m1).then(function(){
+        ['#recCode', '#recMdp', '#recMdp2', '#recPrenom'].forEach(function(s){ $(s).value = ''; });
+        etat.textContent = '';
+        ouvrirSession(compte.id, cle, o);
+      });
+    });
+  }).catch(function(err){
+    etat.className = 'petit alerte';
+    etat.textContent = err && err.msg ? err.msg : 'Le déblocage a échoué.';
+  }).then(function(){ $('#btnDebloquer').disabled = false; $('#recCode').value = ''; });
+}
+
+/* ---- Espace parent ---- */
+function ouvrirParent(){
+  ['#parCode', '#parCode2', '#parAncien', '#parNouveau', '#parNouveau2', '#parSupPrenom', '#parSupCode'].forEach(function(s){ $(s).value = ''; });
+  $('#etatParent').textContent = '';
+  dessinerParent();
+  carteConnexion('carteParent');
+}
+function dessinerParent(){
+  var p = lireParent(), l = lireComptes();
+  var proteges = l.filter(function(c){ return estProtege(c.id); }).length;
+  $('#parentCreer').classList.toggle('masque', !!p);
+  $('#parentGerer').classList.toggle('masque', !p);
+  $('#parentStatut').textContent = !p ? 'Aucun code parent sur cet appareil pour l\'instant.'
+    : 'Code parent créé le ' + dateFr(p.date) + '. ' + proteges + ' compte' + (proteges > 1 ? 's' : '') + ' sur ' + l.length +
+      ' protégé' + (proteges > 1 ? 's' : '') + '.' + (proteges < l.length ? ' Les autres le seront dès leur prochaine connexion.' : '');
+}
+function messageParent(t, ok){ var e = $('#etatParent'); e.className = 'petit ' + (ok ? 'vert' : 'alerte'); e.textContent = t; }
+
+$('#btnCreerParent').addEventListener('click', function(){
+  var c1 = $('#parCode').value, c2 = $('#parCode2').value;
+  if (c1.length < 6) { messageParent('Le code parent doit faire au moins 6 caractères.'); return; }
+  if (c1 !== c2) { messageParent('Les deux codes ne sont pas pareils.'); return; }
+  if (lireParent() && !confirm('Un code parent existe déjà. Le remplacer ? Chaque enfant devra se reconnecter une fois pour être de nouveau protégé.')) return;
+  this.disabled = true; var b = this;
+  messageParent('Création…', true);
+  creerParent(c1).then(function(){
+    $('#parCode').value = ''; $('#parCode2').value = '';
+    dessinerParent();
+    messageParent('Code parent créé. Note-le en lieu sûr. Chaque compte sera protégé dès que l\'enfant se connectera.', true);
+  }).catch(function(){ messageParent('La création a échoué.'); }).then(function(){ b.disabled = false; });
+});
+$('#btnChangerParent').addEventListener('click', function(){
+  var a = $('#parAncien').value, n1 = $('#parNouveau').value, n2 = $('#parNouveau2').value, p = lireParent();
+  if (!p) return;
+  if (n1.length < 6) { messageParent('Le nouveau code doit faire au moins 6 caractères.'); return; }
+  if (n1 !== n2) { messageParent('Les deux nouveaux codes ne sont pas pareils.'); return; }
+  var attente = attenteRestante('parent' + p.id);
+  if (attente > 0) { messageParent('Trop d\'essais. Réessaie dans ' + Math.ceil(attente / 1000) + ' secondes.'); return; }
+  changerCodeParent(a, n1).then(function(){
+    remettreEssais('parent' + p.id);
+    ['#parAncien', '#parNouveau', '#parNouveau2'].forEach(function(s){ $(s).value = ''; });
+    messageParent('Code parent changé. Les comptes restent protégés.', true);
+  }).catch(function(){ noterEchec('parent' + p.id); messageParent('L\'ancien code parent est incorrect.'); });
+});
+$('#btnOubliParent').addEventListener('click', function(){
+  $('#parentCreer').classList.remove('masque');
+  $('#parentGerer').classList.add('masque');
+  messageParent('Choisis un nouveau code parent. Les comptes des enfants ne sont pas touchés : chacun sera protégé par le nouveau code à sa prochaine connexion.', true);
+});
+$('#btnSupParent').addEventListener('click', function(){
+  var prenom = $('#parSupPrenom').value, code = $('#parSupCode').value, p = lireParent();
+  if (!p || !prenomNormalise(prenom) || !code) { messageParent('Tape le prénom de l\'enfant et le code parent.'); return; }
+  var attente = attenteRestante('parent' + p.id);
+  if (attente > 0) { messageParent('Trop d\'essais. Réessaie dans ' + Math.ceil(attente / 1000) + ' secondes.'); return; }
   empreintePrenom(prenom).then(function(h){
     var c = compteParEmpreinte(h);
-    if (!c) { etat.textContent = 'Aucun compte avec ce prénom sur ce téléphone.'; return; }
-    if (!confirm('Effacer le compte de ' + nettoyer(prenom, 30) + ' ? Ses leçons et son carnet seront perdus.')) return;
-    supprimerCompte(c.id);
-    remettreEssais(h);
-    etat.className = 'petit doux';
-    ecranEntree();
-    $('#etatMdp').className = 'petit doux';
-    $('#etatMdp').textContent = 'Compte effacé. Tu peux en créer un nouveau.';
-  });
+    if (!c) throw { msg: 'Aucun compte à ce prénom sur cet appareil.' };
+    return clePriveeParent(p, code).then(function(){ return { c: c, h: h }; },
+      function(){ noterEchec('parent' + p.id); throw { msg: 'Code parent incorrect.' }; });
+  }).then(function(r){
+    remettreEssais('parent' + p.id);
+    if (!confirm('Supprimer définitivement le compte de ' + nettoyer(prenom, 30) + ' sur cet appareil ? Ses leçons et son carnet seront perdus.')) return;
+    supprimerCompte(r.c.id); remettreEssais(r.h);
+    $('#parSupPrenom').value = ''; $('#parSupCode').value = '';
+    dessinerParent();
+    messageParent('Compte supprimé.', true);
+  }).catch(function(err){ messageParent(err && err.msg ? err.msg : 'La suppression a échoué.'); });
 });
-$('#btnQuitter').addEventListener('click', verrouiller);
+$('#btnParent').addEventListener('click', ouvrirParent);
+$('#btnOubliVersParent').addEventListener('click', ouvrirParent);
+$('#btnRetourParent').addEventListener('click', ecranEntree);
+$('#btnDebloquer').addEventListener('click', debloquerCompte);
+
+/* ============ Changer d'appareil ============ */
+/* La sauvegarde est un petit fichier qui contient les données du compte,
+   déjà chiffrées par le mot de passe. On peut l'envoyer par n'importe quel
+   moyen (Bluetooth, câble, carte mémoire, e-mail, Drive) : sans le mot de
+   passe, il est illisible. Rien ne passe par un serveur. */
+var derniereSauvegarde = '';
+function aujourdhui(){ return new Date().toISOString().slice(0, 10); }
+function dateFr(iso){ var p = String(iso).split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : ''; }
+
+function telecharger(fichier){
+  var url = URL.createObjectURL(fichier);
+  var a = document.createElement('a');
+  a.href = url; a.download = fichier.name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+}
+
+function exporterCompte(){
+  var etat = $('#etatExport');
+  if (!session || !profil) return;
+  var s = session;
+  derniereSauvegarde = aujourdhui();
+  sauver();
+  fileSauvegarde.then(function(){
+    var c = lireComptes().filter(function(x){ return x.id === s.id; })[0];
+    var enr = E.lire('c_' + s.id, null);
+    if (!c || !enr) throw new Error('compte');
+    var k = lireCles(s.id);
+    if (!k) throw new Error('cles');
+    var contenu = JSON.stringify({ app: 'mon-argent-grandit', v: 2, date: aujourdhui(),
+                                   compte: { h: c.h, sel: c.sel, it: c.it }, cles: { kp: k.kp }, donnees: enr });
+    var nom = 'mon-argent-grandit-' + (prenomNormalise(profil.prenom).replace(/ /g, '-') || 'compte') + '-' + aujourdhui() + '.json';
+    var fichier = new File([contenu], nom, { type: 'application/json' });
+    etat.className = 'petit doux';
+    if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+      return navigator.share({ files: [fichier], title: 'Sauvegarde Mon argent grandit' })
+        .then(function(){ etat.textContent = 'Sauvegarde envoyée. Garde ce fichier précieusement.'; })
+        .catch(function(err){
+          if (err && err.name === 'AbortError') { etat.textContent = 'Envoi annulé.'; return; }
+          telecharger(fichier); etat.textContent = 'Sauvegarde téléchargée : ' + nom;
+        });
+    }
+    telecharger(fichier);
+    etat.textContent = 'Sauvegarde téléchargée : ' + nom;
+  }).catch(function(){
+    etat.className = 'petit alerte';
+    etat.textContent = 'La sauvegarde a échoué. Réessaie.';
+  }).then(function(){ dessinerAccueil(); afficherDateSauvegarde(); });
+}
+
+function afficherDateSauvegarde(){
+  var el = $('#dateSauvegarde');
+  if (el) el.textContent = derniereSauvegarde ? 'Dernière sauvegarde : ' + dateFr(derniereSauvegarde) + '.' : 'Aucune sauvegarde pour l\'instant.';
+}
+
+function lireFichierSauvegarde(texte){
+  var o = JSON.parse(texte);
+  var b64 = /^[A-Za-z0-9+\/=]+$/;
+  if (!o || o.app !== 'mon-argent-grandit' || (o.v !== 1 && o.v !== 2) || !o.compte || !o.donnees) throw new Error('format');
+  var c = o.compte, d = o.donnees;
+  if (!/^[0-9a-f]{64}$/.test(c.h) || typeof c.sel !== 'string' || !b64.test(c.sel) || c.sel.length > 64) throw new Error('format');
+  if (!(c.it >= 50000 && c.it <= 2000000)) throw new Error('format');
+  if (typeof d.iv !== 'string' || typeof d.d !== 'string' || !b64.test(d.iv) || !b64.test(d.d)) throw new Error('format');
+  var kp = null;
+  if (o.v === 2) {
+    if (!o.cles || !o.cles.kp || !b64.test(o.cles.kp.iv || '') || !b64.test(o.cles.kp.d || '')) throw new Error('format');
+    kp = { iv: o.cles.kp.iv, d: o.cles.kp.d };
+  }
+  return { compte: { h: c.h, sel: c.sel, it: c.it }, kp: kp, donnees: { v: 1, iv: d.iv, d: d.d } };
+}
+
+function importerCompte(){
+  var etat = $('#etatImport');
+  etat.className = 'petit alerte';
+  var fic = $('#fichierImport').files[0];
+  var prenom = $('#impPrenom').value, mdp = $('#impMdp').value;
+  if (!fic) { etat.textContent = 'Choisis d\'abord le fichier de sauvegarde.'; return; }
+  if (fic.size > 3000000) { etat.textContent = 'Ce fichier est trop gros pour être une sauvegarde.'; return; }
+  if (!prenomNormalise(prenom) || !mdp) { etat.textContent = 'Tape ton prénom et ton mot de passe.'; return; }
+  $('#btnImporter').disabled = true;
+  etat.className = 'petit doux'; etat.textContent = 'Vérification…';
+  var lecture = fic.text ? fic.text() : new Promise(function(ok, ko){
+    var r = new FileReader(); r.onload = function(){ ok(r.result); }; r.onerror = ko; r.readAsText(fic);
+  });
+  var sauvegarde;
+  lecture.then(function(t){
+    try { sauvegarde = lireFichierSauvegarde(t); } catch (e) { throw { msg: 'Ce fichier n\'est pas une sauvegarde de Mon argent grandit.' }; }
+    return empreintePrenom(prenom);
+  }).then(function(h){
+    if (h !== sauvegarde.compte.h) throw { msg: 'Ce fichier appartient à un autre prénom.' };
+    var attente = attenteRestante(h);
+    if (attente > 0) throw { msg: 'Trop d\'essais. Réessaie dans ' + Math.ceil(attente / 1000) + ' secondes.' };
+    return deriverCle(mdp, depuis64(sauvegarde.compte.sel), sauvegarde.compte.it).then(function(cleMdp){
+      var ouvrir = sauvegarde.kp
+        ? sortirCle(cleMdp, sauvegarde.kp).then(function(cle){
+            return dechiffrer(cle, sauvegarde.donnees).then(function(o){ return { cle: cle, o: o, kp: sauvegarde.kp }; });
+          })
+        : dechiffrer(cleMdp, sauvegarde.donnees).then(function(o){
+            // Sauvegarde de l'ancien format : on passe à une clé de compte.
+            return nouvelleCle().then(function(cle){
+              return Promise.all([chiffrer(cle, o), rangerCle(cleMdp, cle)]).then(function(r){
+                sauvegarde.donnees = r[0];
+                return { cle: cle, o: o, kp: r[1] };
+              });
+            });
+          });
+      return ouvrir.then(function(r){ r.h = h; return r; }, function(){ noterEchec(h); throw { msg: 'Mot de passe incorrect.' }; });
+    });
+  }).then(function(r){
+    remettreEssais(r.h);
+    var existant = compteParEmpreinte(r.h);
+    if (existant && !confirm('Un compte à ce prénom existe déjà sur cet appareil. Le remplacer par celui de la sauvegarde ?')) {
+      etat.textContent = 'Rien n\'a été changé.'; return;
+    }
+    if (existant) supprimerCompte(existant.id);
+    var l = lireComptes();
+    if (l.length >= MAX_COMPTES) throw { msg: 'Il y a déjà ' + MAX_COMPTES + ' comptes sur cet appareil.' };
+    var id = hex(aleatoire(8));
+    ecrireDonnees(id, sauvegarde.donnees);
+    E.ecrire('k_' + id, { v: 2, kp: r.kp, kr: null });
+    l.push({ id: id, h: r.h, sel: sauvegarde.compte.sel, it: sauvegarde.compte.it });
+    ecrireComptes(l);
+    proteger(id, r.cle);
+    $('#fichierImport').value = ''; $('#impPrenom').value = ''; $('#impMdp').value = '';
+    etat.textContent = '';
+    ouvrirSession(id, r.cle, r.o);
+  }).catch(function(err){
+    etat.className = 'petit alerte';
+    etat.textContent = err && err.msg ? err.msg : 'La récupération a échoué.';
+  }).then(function(){ $('#btnImporter').disabled = false; $('#impMdp').value = ''; });
+}
+
+$('#btnRecuperer').addEventListener('click', function(){ $('#etatImport').textContent = ''; carteConnexion('carteImport'); });
+$('#btnAnnulerImport').addEventListener('click', ecranEntree);
+$('#btnImporter').addEventListener('click', importerCompte);
+$('#btnExporter').addEventListener('click', exporterCompte);
+
 
 /* ============ Leçons ============ */
 var leconActive = 0;
@@ -1741,6 +2291,11 @@ function envoyerProgression(manuel){
     recu: String(Math.round(t.recu)),
     epargne: String(Math.round(t.epargne))
   });
+  if (!navigator.onLine) {
+    if (manuel && etat) etat.textContent = 'Pas de connexion. Ta progression sera envoyée quand tu valideras une leçon en ligne, ou réessaie plus tard.';
+    dernierEnvoiMs = 0;
+    return;
+  }
   if (manuel && etat) etat.textContent = 'Envoi en cours…';
   fetch(suivi.url + '?' + p.toString(), { method: 'GET', mode: 'no-cors', credentials: 'omit', referrerPolicy: 'no-referrer' })
     .then(function(){
@@ -1760,6 +2315,8 @@ if (btnR) btnR.addEventListener('click', function(){
   document.getElementById('urlSuivi').value = suivi.url || '';
   document.getElementById('etatSuivi').textContent = '';
   document.getElementById('etatChMdp').textContent = '';
+  document.getElementById('etatExport').textContent = '';
+  afficherDateSauvegarde();
 });
 
 var btnER = document.getElementById('btnEnregistrerReglages');
@@ -1794,22 +2351,12 @@ $('#btnChangerMdp').addEventListener('click', function(){
   if (!session) return;
   if (m1.length < 4){ etat.textContent = 'Au moins 4 caractères.'; return; }
   if (m1 !== m2){ etat.textContent = 'Les deux mots de passe ne sont pas pareils.'; return; }
-  var s = session, sel = aleatoire(16);
-  var etatDonnees = { profil: profil, faites: faites.slice(), carnet: carnet.slice(), suivi: suivi, jeux: lireJeux(jeux) };
+  var s = session;
   etat.className = 'petit doux';
   etat.textContent = 'Changement…';
-  fileSauvegarde = fileSauvegarde.then(function(){
-    return deriverCle(m1, sel, ITERATIONS).then(function(cle){
-      return chiffrer(cle, etatDonnees).then(function(enr){
-        E.ecrire('c_' + s.id, enr);
-        ecrireComptes(lireComptes().map(function(c){
-          return c.id === s.id ? { id: c.id, h: c.h, sel: vers64(sel), it: ITERATIONS } : c;
-        }));
-        if (session && session.id === s.id) session.cle = cle;
-        $('#chMdp').value = ''; $('#chMdp2').value = '';
-        etat.textContent = 'Mot de passe changé.';
-      });
-    });
+  fileSauvegarde = fileSauvegarde.then(function(){ return changerMdpCompte(s.id, s.cle, m1); }).then(function(){
+    $('#chMdp').value = ''; $('#chMdp2').value = '';
+    etat.textContent = 'Mot de passe changé.';
   }).catch(function(){
     etat.className = 'petit alerte';
     etat.textContent = 'Le changement a échoué. L\'ancien mot de passe reste valable.';
@@ -1836,6 +2383,19 @@ $('#btnTheme').addEventListener('click', function(){
 var th = E.lire('theme', null);
 if (th === 'dark' || th === 'light') document.documentElement.setAttribute('data-theme', th);
 
+/* ============ Hors ligne ============ */
+/* Le service worker garde une copie de l'application sur l'appareil : après
+   une première ouverture avec internet, elle s'ouvre même sans réseau.
+   On demande aussi au navigateur de ne pas effacer les données de lui-même. */
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+if (navigator.storage && navigator.storage.persist) {
+  try { navigator.storage.persist().catch(function(){}); } catch (e) {}
+}
+
 /* ============ Démarrage ============ */
 /* À chaque ouverture, personne n'est connecté : il faut choisir son compte
    et donner son mot de passe. */
@@ -1844,7 +2404,7 @@ if (!window.crypto || !crypto.subtle) {
     'adresse https, dans un navigateur à jour (Chrome, Safari, Firefox).</p>';
   montrer('connexion');
 } else {
-  migrerComptes().catch(function(){}).then(verrouiller);
+  migrerComptes().catch(function(){}).then(function(){ try { reparerComptes(); } catch (e) {} }).then(verrouiller);
 }
 </script>
 </body>
