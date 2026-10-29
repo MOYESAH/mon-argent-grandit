@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-rcOFruZ0EPMwgzUn8JyFZSZ7ZB/e+WEhoMJI1jrs4Sw='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://script.google.com https://script.googleusercontent.com; img-src 'self' data:; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-fE441qseGwboitNgcN8GEH8OcNTlmbfyJNFRi3q0ltI='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://script.google.com https://script.googleusercontent.com; img-src 'self' data:; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Mon argent grandit</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -154,7 +154,7 @@ hr.fin{border:0;border-top:1px solid var(--trait);margin:16px 0}
       <label for="nvPrenom">Prénom</label>
       <input id="nvPrenom" placeholder="ex. Marie" autocomplete="off" autocapitalize="words" maxlength="30">
       <label for="nvAge">Âge</label>
-      <input id="nvAge" type="number" min="6" max="25" placeholder="ex. 10">
+      <input id="nvAge" type="number" min="6" max="99" placeholder="ex. 10">
       <label for="nvMdp">Mot de passe (4 caractères au moins)</label>
       <input id="nvMdp" type="password" autocomplete="new-password" maxlength="64">
       <label for="nvMdp2">Encore une fois, pour vérifier</label>
@@ -271,12 +271,22 @@ hr.fin{border:0;border-top:1px solid var(--trait);margin:16px 0}
     <div class="carte">
       <div id="illusAccueil"></div>
       <h3>Pourquoi c'est important</h3>
+      <div id="pourquoiEnfant">
       <p>L'argent que tu reçois aujourd'hui peut faire deux choses. Il peut partir
          tout de suite, et il n'en reste rien. Ou il peut travailler pour toi,
          et grandir pendant que tu fais autre chose.</p>
       <p class="doux petit" style="margin:0">Cette application t'apprend la deuxième.
          Ce n'est pas un jeu : tout ce qu'elle raconte existe vraiment, à la Bourse
          Régionale des Valeurs Mobilières, à Abidjan.</p>
+      </div>
+      <div id="pourquoiAdulte" class="masque">
+      <p>Personne ne nous apprend l'argent à l'école. Beaucoup d'adultes gagnent leur vie
+         sans jamais avoir appris à faire un budget, à éviter un crédit trop cher ou à placer
+         leur épargne.</p>
+      <p class="doux petit" style="margin:0">Ce parcours reprend tout depuis le début, avec des
+         exemples d'ici : FCFA, mobile money, tontines, BRVM, arnaques. Il n'est jamais trop tard,
+         et vos enfants apprendront en vous regardant faire.</p>
+      </div>
     </div>
     <div class="carte" style="background:transparent;border-style:dashed">
       <p class="doux petit" style="margin:0">
@@ -299,7 +309,7 @@ hr.fin{border:0;border-top:1px solid var(--trait);margin:16px 0}
       </p>
       <div id="zoneReglages" class="masque" style="margin-top:12px">
         <label for="regAge">Mon âge</label>
-        <input id="regAge" type="number" min="6" max="25">
+        <input id="regAge" type="number" min="6" max="99">
         <label for="codeEnfant">Ton code personnel</label>
         <input id="codeEnfant" placeholder="ex. marie2026" autocomplete="off" maxlength="40">
         <label for="urlSuivi">Adresse de suivi (donnée par tes parents)</label>
@@ -349,6 +359,8 @@ hr.fin{border:0;border-top:1px solid var(--trait);margin:16px 0}
 
   <!-- ===== SIMULATEUR ===== -->
   <section id="vue-simu" class="masque">
+    <div id="simuAdulte" class="masque"></div>
+    <div id="simuEnfant">
     <h2>Si je mets de côté chaque mois</h2>
     <div class="carte">
       <label for="mensuel">Combien par mois ? (en francs CFA)</label>
@@ -365,6 +377,7 @@ hr.fin{border:0;border-top:1px solid var(--trait);margin:16px 0}
       <div style="margin-top:16px"><button id="btnSimuler">Calculer</button></div>
     </div>
     <div id="resultatSimu"></div>
+    </div>
   </section>
 
   <!-- ===== CARNET ===== -->
@@ -454,7 +467,7 @@ function montantValide(m){
 function lireProfil(p){
   if (!p || typeof p !== 'object') return null;
   var prenom = nettoyer(p.prenom, 30), age = parseInt(p.age, 10);
-  return prenom && age >= 6 && age <= 25 ? { prenom: prenom, age: age } : null;
+  return prenom && age >= 6 && age <= 99 ? { prenom: prenom, age: age } : null;
 }
 function lireFaites(f){
   return Array.isArray(f) ? f.filter(function(x){ return typeof x === 'string' && x.length < 40; }) : [];
@@ -969,15 +982,19 @@ var DESSINS = {
       texte(220, 166, 'ouvrir un compte-titres'));
   }
 };
-function illustration(cle){ return DESSINS[cle] ? DESSINS[cle]() : ''; }
+function illustration(cle){
+  var k = DESSINS[cle] ? cle : (typeof ALIAS_DESSINS !== 'undefined' && ALIAS_DESSINS[cle]);
+  return k && DESSINS[k] ? DESSINS[k]() : '';
+}
 
 /* ============ Utilitaires ============ */
 function f(n){ return Math.round(n).toLocaleString('fr-FR').replace(/ |,/g,' '); }
 function $(s){ return document.querySelector(s); }
-function niveauPourAge(a){ return a <= 8 ? 1 : (a <= 11 ? 2 : (a <= 14 ? 3 : 4)); }
+function niveauPourAge(a){ return a >= 18 ? 5 : a <= 8 ? 1 : (a <= 11 ? 2 : (a <= 14 ? 3 : 4)); }
 
 function leconsDisponibles(){
   var a = profil ? profil.age : 7;
+  if (a >= AGE_ADULTE) return LECONS_ADULTES;
   return LECONS.filter(function(l){ return a >= l.age; });
 }
 
@@ -1370,17 +1387,394 @@ function jeuBissap(){
   }
 }
 
+/* ============ Parcours adulte ============ */
+/* Pour les plus de 18 ans qui n'ont jamais appris à gérer l'argent.
+   Même application, mêmes principes (tout reste sur l'appareil), mais des
+   leçons, des outils et un jeu pensés pour la vie d'adulte dans l'UEMOA.
+   On y vouvoie. Les chiffres des exemples sont arrondis et illustratifs. */
+var AGE_ADULTE = 18;
+function estAdulte(){ return !!(profil && profil.age >= AGE_ADULTE); }
+
+var LECONS_ADULTES = [
+  {
+    cle: 'a-budget', age: 18, titre: 'Savoir où passe son argent',
+    corps: [
+      "Le plus difficile n'est pas de gagner de l'argent, c'est de savoir où il part. Pendant un mois, " +
+      "notez tout ce qui sort, même les petites sommes : le crédit téléphone, le transport, le café du matin. " +
+      "Le carnet de l'application sert à ça.",
+      "Ensuite, rangez vos dépenses en trois parts. Les besoins : loyer, nourriture, transport, école, santé, factures. " +
+      "L'épargne. Et les envies : sorties, vêtements de plus, petits plaisirs.",
+      "Un repère souvent utilisé : environ la moitié du revenu pour les besoins, un cinquième pour l'épargne, " +
+      "le reste pour le plaisir. Adaptez-le à votre réalité. L'important est que l'épargne ait une part fixe, " +
+      "décidée à l'avance.",
+      "Pensez aussi à la famille élargie, aux cérémonies, aux cotisations. Ces dépenses sont réelles et souvent " +
+      "inévitables. Mieux vaut leur donner une ligne à part dans le budget que de les subir chaque mois."
+    ],
+    quiz: [
+      { q: "Quel est le meilleur moment pour mettre de l'argent de côté ?",
+        r: ["Avec ce qui reste en fin de mois", "Dès que l'argent arrive, avant les autres dépenses", "Seulement quand on gagne beaucoup"], bon: 1,
+        exp: "On appelle ça « se payer en premier ». Ce qui reste en fin de mois, c'est souvent rien." },
+      { q: "Que faire des dépenses pour la famille et les cérémonies ?",
+        r: ["Les cacher", "Les prévoir comme une ligne à part du budget", "Les refuser toujours"], bon: 1,
+        exp: "Elles font partie de la vie. Les prévoir évite qu'elles mangent l'épargne par surprise." }
+    ]
+  },
+  {
+    cle: 'a-urgence', age: 18, titre: 'Le coussin de sécurité',
+    corps: [
+      "Une maladie, une panne de moto, une perte de travail : les coups durs arrivent toujours au mauvais moment. " +
+      "Sans réserve, on emprunte, souvent cher, ou on vend quelque chose à perte.",
+      "Le coussin de sécurité, c'est une somme mise de côté uniquement pour ces cas-là. L'objectif courant : " +
+      "de 3 à 6 mois de dépenses essentielles. On le construit petit à petit, en commençant par un mois.",
+      "Rangez-le à part, sur un compte d'épargne ou dans une microfinance agréée, facile à récupérer mais pas dans " +
+      "le portefeuille qu'on utilise tous les jours. Et ne le placez pas en bourse : il doit être disponible tout de suite.",
+      "C'est la première étape avant tout placement. Investir sans coussin, c'est risquer de devoir tout revendre au pire moment."
+    ],
+    quiz: [
+      { q: "Quelle taille viser pour le coussin de sécurité ?",
+        r: ["Une semaine de dépenses", "3 à 6 mois de dépenses essentielles", "Cinq ans de salaire"], bon: 1,
+        exp: "3 à 6 mois, construits progressivement. Un mois, c'est déjà une vraie protection." },
+      { q: "Où ranger ce coussin ?",
+        r: ["En actions à la BRVM", "Sur un compte séparé, facile à récupérer", "Prêté à un ami"], bon: 1,
+        exp: "Il doit être sûr et disponible vite. La bourse monte et descend, un prêt peut ne pas revenir." }
+    ]
+  },
+  {
+    cle: 'a-credit', age: 18, titre: 'Le crédit : outil ou piège',
+    corps: [
+      "Un crédit n'est pas gratuit. On rembourse la somme empruntée, plus les intérêts et souvent des frais. " +
+      "Avant de signer, posez toujours la même question : combien vais-je rembourser en tout ?",
+      "Un exemple. Vous empruntez 500 000 F sur 12 mois à 12 % par an. Vous payez environ 44 400 F par mois, " +
+      "soit 532 800 F au total. Le crédit vous coûte près de 33 000 F.",
+      "Un bon repère : l'ensemble de vos remboursements ne devrait pas dépasser environ un tiers de votre revenu. " +
+      "Beaucoup de banques appliquent cette limite, c'est une protection pour vous aussi.",
+      "Emprunter pour produire (une machine, un stock, un outil de travail) peut être une bonne idée si ça rapporte " +
+      "plus que ça coûte. Emprunter pour consommer (une fête, un téléphone dernier cri) appauvrit presque toujours. " +
+      "Et un prêt entre proches mérite aussi un papier écrit : ça protège l'amitié."
+    ],
+    quiz: [
+      { q: "Vous empruntez 500 000 F et remboursez 12 mensualités de 44 400 F. Combien vous coûte ce crédit ?",
+        r: ["32 800 F", "500 000 F", "Rien, on rend ce qu'on a pris"], bon: 0,
+        exp: "12 × 44 400 = 532 800 F remboursés, soit 32 800 F de plus que la somme empruntée." },
+      { q: "Lequel de ces crédits est le plus raisonnable ?",
+        r: ["Pour un téléphone dernier cri", "Pour une machine qui fait gagner de l'argent à votre commerce", "Pour une grande fête"], bon: 1,
+        exp: "Un crédit qui rapporte plus qu'il ne coûte peut aider. Les autres coûtent sans rien rapporter." }
+    ]
+  },
+  {
+    cle: 'a-mobile', age: 18, titre: 'Mobile money, banque, microfinance',
+    corps: [
+      "Le mobile money est pratique pour payer et envoyer de l'argent. Mais chaque retrait ou transfert peut " +
+      "avoir des frais, et l'argent qui y dort se dépense facilement. Ce n'est pas l'endroit idéal pour l'épargne.",
+      "Une banque ou une microfinance agréée permet d'ouvrir un compte d'épargne séparé. Il rapporte souvent peu, " +
+      "mais il met l'argent à l'abri de la tentation. La BCEAO surveille les banques et les microfinances agréées.",
+      "La règle de sécurité la plus importante : votre code secret ne se donne jamais. Aucun agent, aucun service " +
+      "client, aucune banque ne vous le demandera, ni par téléphone ni par message.",
+      "Méfiez-vous aussi des messages du type « je vous ai envoyé de l'argent par erreur, renvoyez-le ». " +
+      "Vérifiez toujours votre solde vous-même avant de faire quoi que ce soit."
+    ],
+    quiz: [
+      { q: "Quelqu'un appelle : « Service client, donnez votre code pour débloquer votre compte. » Vous faites quoi ?",
+        r: ["Je donne le code", "Je raccroche : aucun service ne demande le code", "Je donne seulement la moitié du code"], bon: 1,
+        exp: "Le code secret ne se partage jamais. C'est l'arnaque la plus courante." },
+      { q: "Pourquoi garder son épargne hors du portefeuille mobile du quotidien ?",
+        r: ["Pour ne pas la dépenser sans y penser, et limiter les frais", "Parce que c'est interdit", "Parce que ça rapporte forcément plus"], bon: 0,
+        exp: "Séparer l'épargne des dépenses courantes, c'est la meilleure façon de la garder." }
+    ]
+  },
+  {
+    cle: 'a-bourse', age: 18, titre: 'Placer son argent dans l\'UEMOA',
+    corps: [
+      "Une fois le coussin de sécurité en place, l'argent dont vous n'aurez pas besoin pendant plusieurs années " +
+      "peut travailler. Dans l'UEMOA, trois grandes portes existent.",
+      "Les actions : une part d'une entreprise cotée à la BRVM, à Abidjan. Leur prix monte et descend, et " +
+      "beaucoup versent un dividende chaque année. On les achète par une SGI, une société de gestion et d'intermédiation.",
+      "Les obligations : vous prêtez à un État ou à une entreprise, qui vous verse un intérêt fixé à l'avance et " +
+      "vous rembourse à une date prévue. Les États de l'UEMOA en émettent régulièrement. C'est plus calme que les actions.",
+      "Les FCP : un panier commun géré par des professionnels, qui contient des actions, des obligations ou les deux. " +
+      "On peut commencer avec de petites sommes. C'est souvent la porte la plus simple pour débuter.",
+      "Avant de choisir une SGI ou une société de gestion, vérifiez qu'elle est agréée par l'AMF-UMOA, l'autorité " +
+      "qui surveille le marché financier de la région."
+    ],
+    quiz: [
+      { q: "Une obligation, c'est :",
+        r: ["Une part d'entreprise", "Un prêt, avec un intérêt fixé à l'avance", "Un compte courant"], bon: 1,
+        exp: "Vous prêtez de l'argent et on vous rembourse avec intérêts, à une date connue." },
+      { q: "Quel argent placer en bourse ?",
+        r: ["Le loyer du mois prochain", "Celui dont on n'aura pas besoin pendant plusieurs années", "Le coussin de sécurité"], bon: 1,
+        exp: "La bourse demande du temps. L'argent dont on a besoin bientôt doit rester disponible." }
+    ]
+  },
+  {
+    cle: 'a-arnaques', age: 18, titre: 'Reconnaître une arnaque',
+    corps: [
+      "Les arnaques financières se ressemblent toutes. Un rendement élevé et garanti. Une urgence : « l'offre se " +
+      "termine ce soir ». Et souvent, un bonus pour chaque personne que vous faites entrer.",
+      "Ce dernier point est le signe d'une pyramide : les premiers sont payés avec l'argent des suivants, jusqu'au " +
+      "jour où il n'y a plus de nouveaux. Alors tout s'écroule, et les derniers perdent tout.",
+      "Dans un vrai placement, le rendement n'est jamais garanti très haut, et les risques sont expliqués. " +
+      "Si on vous promet de doubler votre argent en quelques semaines, c'est une arnaque, à chaque fois.",
+      "Avant de confier votre argent, vérifiez l'agrément : l'AMF-UMOA pour les SGI et les sociétés de gestion, " +
+      "la BCEAO et le ministère des Finances pour les banques et les microfinances. Une page sur les réseaux " +
+      "sociaux n'est pas un agrément."
+    ],
+    quiz: [
+      { q: "« 20 % par mois garantis, et un bonus pour chaque ami que vous inscrivez. » C'est :",
+        r: ["Un placement sérieux", "Une pyramide, donc une arnaque", "Un FCP"], bon: 1,
+        exp: "Rendement garanti très élevé et recrutement : les deux signes classiques." },
+      { q: "Qui vérifier avant de confier son argent à une SGI ?",
+        r: ["L'AMF-UMOA", "La mairie", "Un groupe sur les réseaux sociaux"], bon: 0,
+        exp: "L'AMF-UMOA publie la liste des acteurs agréés du marché financier régional." }
+    ]
+  },
+  {
+    cle: 'a-avenir', age: 18, titre: 'Préparer l\'avenir',
+    corps: [
+      "La retraite et les études des enfants semblent loin. C'est justement pour ça qu'il faut commencer tôt : " +
+      "le temps fait la plus grosse partie du travail.",
+      "Deux personnes mettent 20 000 F de côté chaque mois, placés à 6 % par an. La première commence à 25 ans, " +
+      "la seconde à 40 ans. À 60 ans, la première a environ 27 millions de francs, la seconde environ 9 millions. " +
+      "Même effort mensuel, trois fois plus à l'arrivée.",
+      "Renseignez-vous sur la caisse de retraite de votre pays. En Côte d'Ivoire, la CNPS couvre les salariés et " +
+      "propose aussi un régime aux travailleurs indépendants. Ce qu'elle versera ne suffit pas toujours : " +
+      "une épargne personnelle régulière vient en complément.",
+      "Le plus efficace : un versement automatique, chaque mois, le jour de la paie. Ce qu'on ne voit pas, on ne le dépense pas."
+    ],
+    quiz: [
+      { q: "20 000 F par mois à 6 % par an : l'une commence à 25 ans, l'autre à 40 ans. À 60 ans :",
+        r: ["Elles ont à peu près la même somme", "La première a environ trois fois plus", "La seconde a plus"], bon: 1,
+        exp: "Environ 27 millions contre 9 millions. Quinze ans de plus, et les intérêts travaillent sur les intérêts." }
+    ]
+  },
+  {
+    cle: 'a-transmettre', age: 18, titre: 'Transmettre à ses enfants',
+    corps: [
+      "Beaucoup d'adultes n'ont jamais parlé d'argent avec leurs parents. Vous pouvez faire autrement, même en apprenant en même temps qu'eux.",
+      "Donnez un peu d'argent de poche régulier, et laissez l'enfant décider. Les petites erreurs à 10 ans coûtent " +
+      "beaucoup moins cher que les grosses à 30 ans.",
+      "Montrez votre propre budget, simplement : « ce mois-ci, on garde ceci pour l'école, cela pour l'épargne ». " +
+      "L'enfant apprend surtout en vous regardant faire.",
+      "Les enfants peuvent utiliser cette application avec leur propre compte, sur le même téléphone. Vous suivez leur " +
+      "progression sans jamais voir le détail de leur carnet."
+    ],
+    quiz: [
+      { q: "Comment un enfant apprend-il le mieux à gérer l'argent ?",
+        r: ["En évitant tout argent avant 18 ans", "En gérant un peu d'argent à lui, et en voyant ses parents faire", "Uniquement à l'école"], bon: 1,
+        exp: "Un peu d'argent à gérer, des choix à faire, et un exemple à suivre à la maison." }
+    ]
+  }
+];
+
+/* ---- Dessins du parcours adulte ---- */
+DESSINS['a-budget'] = function(){
+  var env = function(x, cls, t){
+    return '<rect class="' + cls + '" x="' + x + '" y="62" width="76" height="52" rx="4"/>' +
+      '<path class="n" d="M' + x + ' 64 L' + (x + 38) + ' 92 L' + (x + 76) + ' 64"/>' + texte(x + 38, 132, t);
+  };
+  return dessin("Trois enveloppes : besoins, épargne, envies", sol(150) +
+    env(22, 's', 'besoins') + env(122, 'o', 'épargne') + env(222, 'b', 'envies') +
+    piece(160, 50, 11) + piece(150, 42, 10) + '<path class="n pt" d="M160 28 v-14"/>' +
+    texte(160, 164, 'chaque franc a sa place'));
+};
+DESSINS['a-urgence'] = function(){
+  return dessin("Un parapluie protège une famille et son canari d'épargne", sol(150) +
+    '<path class="r" d="M60 70 Q160 -4 260 70 Q240 58 220 70 Q200 58 180 70 Q160 58 140 70 Q120 58 100 70 Q80 58 60 70 Z"/>' +
+    '<path class="n gras" d="M160 34 L160 132 Q160 142 150 140"/>' +
+    perso(112, 150, 'b', 1) + perso(206, 150, 'v', .9) +
+    '<path class="t" d="M146 120 Q136 132 142 142 Q148 150 160 150 Q172 150 178 142 Q184 132 174 120 Z"/>' +
+    '<path class="n pt fin" d="M30 20 l-8 18 M52 12 l-8 18 M276 18 l-8 18 M298 26 l-8 18"/>' +
+    texte(160, 166, '3 à 6 mois de dépenses'));
+};
+DESSINS['a-credit'] = function(){
+  return dessin("Une balance : la somme empruntée d'un côté, la somme remboursée, plus lourde, de l'autre", sol(150) +
+    '<path class="n gras" d="M160 30 L160 140 M120 146 L200 146"/>' +
+    '<path class="n gras" d="M70 46 L250 66"/>' +
+    '<path class="n fin" d="M70 46 L50 80 M70 46 L90 80 M250 66 L230 100 M250 66 L270 100"/>' +
+    '<path class="s" d="M44 80 Q70 96 96 80 Z"/><path class="s" d="M224 100 Q250 116 276 100 Z"/>' +
+    pile(70, 76, 2) + pile(250, 96, 4) + rond(160, 30, 6, 'o') +
+    texte(70, 108, 'emprunté') + texte(250, 132, 'remboursé') + texte(160, 166, 'combien en tout ?'));
+};
+DESSINS['a-mobile'] = function(){
+  return dessin("Un téléphone avec un cadenas : le code secret ne se donne jamais", sol(150) +
+    '<rect class="c" x="112" y="14" width="96" height="136" rx="14"/><rect class="ci" x="122" y="32" width="76" height="92" rx="4"/>' +
+    rond(160, 138, 5, 'n') +
+    '<rect class="o" x="142" y="74" width="36" height="30" rx="4"/><path class="n gras" d="M148 74 v-10 Q160 48 172 64 v10"/>' +
+    texte(160, 96, '****') +
+    '<path class="n gras" d="M234 60 L290 116 M290 60 L234 116" style="stroke:var(--rouge)"/>' +
+    texte(262, 136, 'code ?') + texte(62, 84, 'jamais', 'm'));
+};
+DESSINS['a-arnaques'] = function(){
+  return dessin("Un billet accroché à un hameçon",
+    '<path class="n" d="M8 40 Q90 34 160 40 T312 41"/>' +
+    '<path class="n gras" d="M160 40 L160 100 Q160 132 186 130 Q206 128 206 108 L196 116"/>' +
+    '<rect class="v" x="130" y="100" width="60" height="32" rx="4" transform="rotate(-14 160 116)"/>' + texte(160, 122, 'x 2 !') +
+    '<path class="ci" d="M8 150 Q80 140 160 150 T312 150 L312 170 L8 170 Z" style="stroke:none"/>' +
+    texte(260, 90, 'trop beau', 'm') + texte(260, 106, 'pour être vrai', 'm') +
+    texte(60, 98, 'garanti ?', 'm'));
+};
+var ALIAS_DESSINS = { 'a-bourse': 'fcp', 'a-avenir': 'interets', 'a-transmettre': 'accueil' };
+
+/* ---- Outils adultes (onglet Simulateur) ---- */
+var outilAdulte = 'epargne';
+function champ(id, label, val, aide){
+  return '<label for="' + id + '">' + label + '</label><input id="' + id + '" type="number" min="0" value="' + val + '">' +
+    (aide ? '<p class="doux petit" style="margin:4px 0 0">' + aide + '</p>' : '');
+}
+function nombre(id, min, max, def){
+  var v = parseFloat($('#' + id).value);
+  return isFinite(v) ? Math.min(max, Math.max(min, v)) : def;
+}
+function dessinerOutils(){
+  var z = $('#simuAdulte');
+  var onglets = [['epargne', 'Épargne'], ['credit', 'Crédit'], ['budget', 'Budget']];
+  var h = '<h2>Vos outils</h2><div class="ruban">' + onglets.map(function(o){
+    return '<button data-outil="' + o[0] + '" aria-selected="' + (o[0] === outilAdulte) + '">' + o[1] + '</button>'; }).join('') + '</div>';
+  if (outilAdulte === 'epargne') {
+    h += '<div class="carte">' + champ('aMensuel', 'Combien par mois ? (F CFA)', 20000) +
+      champ('aAns', 'Pendant combien d\'années ?', 10) +
+      '<label for="aRend">Rendement annuel</label><select id="aRend">' +
+      '<option value="0">0 % — argent qui dort</option><option value="0.03">3 % — compte d\'épargne</option>' +
+      '<option value="0.06" selected>6 % — obligations, FCP prudent</option><option value="0.09">9 % — actions, avec des hauts et des bas</option></select>' +
+      '<div style="margin-top:14px"><button id="aCalc">Calculer</button></div></div><div id="aRes"></div>';
+  } else if (outilAdulte === 'credit') {
+    h += '<div class="carte">' + champ('cMontant', 'Somme empruntée (F CFA)', 500000) +
+      champ('cTaux', 'Taux annuel (%)', 12, 'Demandez le taux annuel exact, frais compris, avant de signer.') +
+      champ('cDuree', 'Durée (en mois)', 12) + champ('cRevenu', 'Votre revenu mensuel (facultatif)', '') +
+      '<div style="margin-top:14px"><button id="aCalc">Calculer</button></div></div><div id="aRes"></div>';
+  } else {
+    h += '<div class="carte"><p class="doux petit">Montants par mois, en F CFA. Laissez vide ce qui ne vous concerne pas.</p>' +
+      champ('bRevenu', 'Revenus du mois', '') + champ('bLoyer', 'Logement', '') + champ('bNourr', 'Nourriture', '') +
+      champ('bTransp', 'Transport', '') + champ('bEcole', 'École des enfants', '') + champ('bSante', 'Santé', '') +
+      champ('bFact', 'Électricité, eau, téléphone', '') + champ('bFam', 'Famille, cérémonies, cotisations', '') +
+      champ('bCredit', 'Remboursements de crédits', '') + champ('bLoisir', 'Sorties, plaisirs, achats non essentiels', '') +
+      '<div style="margin-top:14px"><button id="aCalc">Faire le point</button></div></div><div id="aRes"></div>';
+  }
+  z.innerHTML = h;
+  z.querySelectorAll('[data-outil]').forEach(function(b){
+    b.addEventListener('click', function(){ outilAdulte = b.dataset.outil; dessinerOutils(); });
+  });
+  $('#aCalc').addEventListener('click', outilAdulte === 'epargne' ? calcEpargne : outilAdulte === 'credit' ? calcCredit : calcBudget);
+}
+function valeurFuture(m, r, mois){
+  var i = r > 0 ? Math.pow(1 + r, 1 / 12) - 1 : 0;
+  return i > 0 ? m * (Math.pow(1 + i, mois) - 1) / i : m * mois;
+}
+function calcEpargne(){
+  var m = nombre('aMensuel', 0, MONTANT_MAX, 0), ans = Math.round(nombre('aAns', 1, 45, 10));
+  var r = parseFloat($('#aRend').value) || 0;
+  if ([0, 0.03, 0.06, 0.09].indexOf(r) < 0) r = 0.06;
+  var v = valeurFuture(m, r, ans * 12), verse = m * ans * 12, tard = ans > 5 ? valeurFuture(m, r, (ans - 5) * 12) : 0;
+  $('#aRes').innerHTML = '<div class="carte"><p class="doux petit" style="margin:0">Dans ' + ans + ' an' + (ans > 1 ? 's' : '') + ', vous auriez</p>' +
+    '<div class="chiffre or">' + f(v) + ' F</div><table style="margin-top:10px">' +
+    '<tr><td>Vous auriez versé</td><td>' + f(verse) + ' F</td></tr>' +
+    '<tr><td>Gagné par les intérêts</td><td class="vert">' + f(v - verse) + ' F</td></tr>' +
+    (tard ? '<tr><td>En commençant 5 ans plus tard</td><td class="rouge">' + f(tard) + ' F</td></tr>' : '') +
+    '</table><p class="doux petit" style="margin-top:10px">Rendement supposé régulier. Dans la réalité il varie, surtout en actions, et rien n\'est garanti.</p></div>';
+}
+function calcCredit(){
+  var P = nombre('cMontant', 0, 1e10, 0), t = nombre('cTaux', 0, 100, 0) / 100, n = Math.round(nombre('cDuree', 1, 360, 12));
+  var rev = parseFloat($('#cRevenu').value);
+  var r = t / 12, men = r > 0 ? P * r / (1 - Math.pow(1 + r, -n)) : P / n, total = men * n, cout = total - P;
+  var h = '<div class="carte"><p class="doux petit" style="margin:0">Mensualité</p><div class="chiffre or">' + f(men) + ' F</div>' +
+    '<table style="margin-top:10px"><tr><td>Total remboursé</td><td>' + f(total) + ' F</td></tr>' +
+    '<tr><td>Coût du crédit</td><td class="rouge">' + f(cout) + ' F</td></tr>' +
+    '<tr><td>Soit, pour 100 F empruntés</td><td>' + (P > 0 ? Math.round(cout / P * 100) : 0) + ' F de plus</td></tr></table>';
+  if (rev > 0) {
+    var part = men / rev;
+    h += '<p style="margin-top:12px" class="' + (part > 1 / 3 ? 'rouge' : 'vert') + '"><strong>' + Math.round(part * 100) + ' % de votre revenu.</strong> ' +
+      (part > 1 / 3 ? 'C\'est plus d\'un tiers : c\'est risqué. Allongez la durée, empruntez moins, ou attendez.'
+                    : 'Moins d\'un tiers, en comptant seulement ce crédit. Ajoutez vos autres remboursements pour vérifier.') + '</p>';
+  }
+  h += '<p class="doux petit">Calcul indicatif, sans frais de dossier ni assurance. Demandez toujours le tableau de remboursement complet.</p></div>';
+  $('#aRes').innerHTML = h;
+}
+function calcBudget(){
+  var v = function(id){ var x = parseFloat($('#' + id).value); return x > 0 ? x : 0; };
+  var rev = v('bRevenu');
+  if (!rev) { $('#aRes').innerHTML = '<div class="carte"><p class="alerte">Indiquez d\'abord vos revenus du mois.</p></div>'; return; }
+  var besoins = v('bLoyer') + v('bNourr') + v('bTransp') + v('bEcole') + v('bSante') + v('bFact');
+  var fam = v('bFam'), cred = v('bCredit'), loisir = v('bLoisir');
+  var reste = rev - besoins - fam - cred - loisir, essentiels = besoins + fam + cred;
+  var pc = function(x){ return Math.round(x / rev * 100); };
+  var barre = function(x, coul){ return x > 0 ? '<span style="display:block;height:100%;width:' + Math.min(100, x / rev * 100) + '%;background:' + coul + '"></span>' : ''; };
+  var h = '<div class="carte"><div style="display:flex;height:16px;border-radius:8px;overflow:hidden;background:rgba(127,127,127,.18)">' +
+    barre(besoins, 'var(--sable)') + barre(fam, 'var(--terre)') + barre(cred, 'var(--rouge)') + barre(loisir, 'var(--bleu)') + barre(Math.max(0, reste), 'var(--vert)') +
+    '</div><table style="margin-top:12px">' +
+    '<tr><td>Besoins</td><td>' + f(besoins) + ' F · ' + pc(besoins) + ' %</td></tr>' +
+    '<tr><td>Famille et cérémonies</td><td>' + f(fam) + ' F · ' + pc(fam) + ' %</td></tr>' +
+    '<tr><td>Crédits</td><td>' + f(cred) + ' F · ' + pc(cred) + ' %</td></tr>' +
+    '<tr><td>Plaisirs</td><td>' + f(loisir) + ' F · ' + pc(loisir) + ' %</td></tr>' +
+    '<tr><td><strong>Ce qui reste</strong></td><td class="' + (reste >= 0 ? 'vert' : 'rouge') + '">' + (reste < 0 ? '−' : '') + f(Math.abs(reste)) + ' F · ' + pc(reste) + ' %</td></tr></table>';
+  var conseils = [];
+  if (reste < 0) conseils.push('Vous dépensez plus que vous ne gagnez. Commencez par les plaisirs, puis regardez les crédits.');
+  else if (pc(reste) < 10) conseils.push('Il reste peu. Essayez de fixer une petite épargne dès le jour de paie, même 5 %.');
+  else if (pc(reste) >= 20) conseils.push('Belle marge. Décidez à l\'avance où va ce reste : coussin de sécurité d\'abord, placements ensuite.');
+  else conseils.push('C\'est un bon début. Mettez ce reste de côté dès le début du mois, pas à la fin.');
+  if (cred > rev / 3) conseils.push('Vos crédits dépassent un tiers du revenu : évitez tout nouvel emprunt.');
+  if (fam > rev * .15) conseils.push('La famille et les cérémonies pèsent lourd. Fixer une enveloppe mensuelle peut aider à dire non sans gêne.');
+  h += conseils.map(function(c){ return '<p style="margin:10px 0 0">' + c + '</p>'; }).join('') +
+    '<p class="doux petit" style="margin-top:10px">Coussin de sécurité à viser : entre <strong>' + f(essentiels * 3) + ' F</strong> et <strong>' + f(essentiels * 6) +
+    ' F</strong> (3 à 6 mois de dépenses essentielles).</p></div>';
+  $('#aRes').innerHTML = h;
+}
+
+/* ---- Jeu : vrai placement ou arnaque ? ---- */
+var OFFRES = [
+  { t: 'Placez 100 000 F, recevez 200 000 F dans 30 jours. Gain garanti.', a: true,
+    exp: 'Doubler en un mois, garanti : c\'est impossible avec un placement honnête.' },
+  { t: 'Un FCP proposé par une société de gestion agréée. Sa valeur varie, les frais sont affichés.', a: false,
+    exp: 'Agrément, risques expliqués, frais visibles : c\'est un vrai placement.' },
+  { t: 'Gagnez 15 % par semaine, plus un bonus pour chaque ami que vous faites inscrire.', a: true,
+    exp: 'Rendement énorme et recrutement : c\'est une pyramide.' },
+  { t: 'SMS : « Je vous ai envoyé 50 000 F par erreur, renvoyez-les à ce numéro s\'il vous plaît. »', a: true,
+    exp: 'Vérifiez votre solde vous-même : le plus souvent, rien n\'a été envoyé.' },
+  { t: 'Un emprunt obligataire d\'État : taux annoncé à l\'avance, souscription par une SGI agréée.', a: false,
+    exp: 'Taux connu, durée connue, intermédiaire agréé : c\'est un placement classique de l\'UEMOA.' },
+  { t: 'Un inconnu sur les réseaux propose de « faire fructifier » votre argent sur une plateforme étrangère. Il faut décider ce soir.', a: true,
+    exp: 'Inconnu, urgence, plateforme qu\'on ne peut pas vérifier : trois signaux d\'alarme.' },
+  { t: 'Un compte d\'épargne dans une banque agréée, avec un taux modeste.', a: false,
+    exp: 'Peu de rendement, mais sûr et contrôlé : c\'est une bonne place pour le coussin de sécurité.' },
+  { t: '« Votre compte mobile money est bloqué. Donnez votre code secret pour le débloquer. »', a: true,
+    exp: 'Personne n\'a jamais besoin de votre code secret.' }
+];
+function jeuArnaque(){
+  var liste = melanger(OFFRES).slice(0, 6), i = 0, bons = 0;
+  function tour(){
+    if (i >= liste.length) {
+      var n = bons === 6 ? 3 : bons >= 5 ? 2 : bons >= 4 ? 1 : 0;
+      finirJeu('arnaque', n, '<h3>' + bons + ' sur 6</h3><p>Les signes à retenir : rendement garanti très élevé, urgence, recrutement, ' +
+        'demande de code secret, et aucun agrément vérifiable.</p>');
+      return;
+    }
+    var o = liste[i];
+    zoneJeu().innerHTML = '<div class="carte"><p class="doux petit">Offre ' + (i + 1) + ' sur 6</p><p><strong>' + esc(o.t) + '</strong></p>' +
+      '<div class="choix"><button data-a="0">Placement sérieux</button><button data-a="1">Arnaque</button></div><div id="jExp"></div></div>';
+    sur('.choix button', 'click', function(b){
+      var choix = b.dataset.a === '1', ok = choix === o.a;
+      if (ok) bons++;
+      zoneJeu().querySelectorAll('.choix button').forEach(function(x){
+        x.disabled = true; if ((x.dataset.a === '1') === o.a) x.classList.add('bon');
+      });
+      if (!ok) b.classList.add('faux');
+      $('#jExp').innerHTML = '<p class="doux petit">' + esc(o.exp) + '</p><button id="jSuite">Continuer</button>';
+      $('#jSuite').addEventListener('click', function(){ i++; tour(); });
+    });
+  }
+  tour();
+}
+
 /* ---- Catalogue des jeux ---- */
 var JEUX = [
-  { cle: 'monnaie', age: 7, titre: 'Rends la monnaie', resume: 'Tu tiens une petite boutique. Rends la monnaie juste à chaque client.', lancer: jeuMonnaie },
-  { cle: 'marche', age: 7, titre: 'Ta semaine avec 3 000 F', resume: 'Transport, goûter, bonbons… Besoin ou envie ? Fais tenir ta semaine.', lancer: jeuMarche },
+  { cle: 'monnaie', age: 7, max: 14, titre: 'Rends la monnaie', resume: 'Tu tiens une petite boutique. Rends la monnaie juste à chaque client.', lancer: jeuMonnaie },
+  { cle: 'marche', age: 7, max: 15, titre: 'Ta semaine avec 3 000 F', resume: 'Transport, goûter, bonbons… Besoin ou envie ? Fais tenir ta semaine.', lancer: jeuMarche },
   { cle: 'uemoa', age: 9, titre: 'UEMOA et BCEAO', resume: 'Les 8 pays du franc CFA, la BCEAO, la BRVM : qui fait quoi ?', lancer: jeuUemoa },
   { cle: 'tontine', age: 10, titre: 'La tontine du quartier', resume: 'Cinq amis, une caisse commune. Choisis ta semaine et découvre les risques.', lancer: jeuTontine },
-  { cle: 'bissap', age: 11, titre: 'Le jus de bissap à la récré', resume: 'Prépare, fixe ton prix, vends. Recette, coûts, bénéfice.', lancer: jeuBissap }
+  { cle: 'bissap', age: 11, titre: 'Le jus de bissap à la récré', resume: 'Prépare, fixe ton prix, vends. Recette, coûts, bénéfice.', lancer: jeuBissap },
+  { cle: 'arnaque', age: 13, titre: 'Vrai placement ou arnaque ?', resume: 'Huit offres qu\'on reçoit vraiment. Saurez-vous repérer les pièges ?', lancer: jeuArnaque }
 ];
 function jeuxDisponibles(){
   var a = profil ? profil.age : 7;
-  return JEUX.filter(function(j){ return a >= j.age; });
+  return JEUX.filter(function(j){ return a >= j.age && a <= (j.max || 120); });
 }
 function dessinerJeux(){
   var h = '<h2>Jouer pour apprendre</h2>';
@@ -1391,7 +1785,7 @@ function dessinerJeux(){
       '<div style="margin-top:12px"><button data-jeu="' + j.cle + '">Jouer</button></div></div>';
   });
   var bloques = JEUX.length - jeuxDisponibles().length;
-  if (bloques) h += '<p class="doux petit">' + bloques + ' autre(s) jeu(x) t\'attendent quand tu seras plus grand.</p>';
+  if (bloques && !estAdulte()) h += '<p class="doux petit">' + bloques + ' autre(s) jeu(x) t\'attendent quand tu seras plus grand.</p>';
   zoneJeu().innerHTML = h;
   sur('button[data-jeu]', 'click', function(b){ lancerJeu(b.dataset.jeu); });
 }
@@ -1420,6 +1814,11 @@ function montrer(v){
   if (v === 'entreprises') dessinerEntreprises();
   if (v === 'carnet') dessinerCarnet();
   if (v === 'jeux') dessinerJeux();
+  if (v === 'simu') {
+    $('#simuAdulte').classList.toggle('masque', !estAdulte());
+    $('#simuEnfant').classList.toggle('masque', estAdulte());
+    if (estAdulte() && !$('#simuAdulte').innerHTML) dessinerOutils();
+  }
   if (v === 'accueil') dessinerAccueil();
   window.scrollTo(0,0);
 }
@@ -1428,6 +1827,10 @@ document.querySelectorAll('.barre button').forEach(function(b){
 });
 
 /* ============ Accueil ============ */
+function nommerOnglet(t){
+  var b = document.querySelector('.barre button[data-vue="simu"]');
+  if (b && b.lastChild && b.lastChild.nodeType === 3) b.lastChild.nodeValue = t;
+}
 function dessinerAccueil(){
   if (!profil) return;
   if (!$('#illusAccueil').innerHTML) $('#illusAccueil').innerHTML = illustration('accueil');
@@ -1442,9 +1845,13 @@ function dessinerAccueil(){
   var vieille = !derniereSauvegarde || (Date.now() - new Date(derniereSauvegarde).getTime()) > 30 * 86400000;
   var actif = carnet.length > 0 || faites.length > 0 || Object.keys(jeux).length > 0;
   $('#rappelSauvegarde').classList.toggle('masque', !(vieille && actif));
-  $('#badge').textContent = 'Niveau ' + niveauPourAge(profil.age);
   var n = niveauPourAge(profil.age);
-  $('#niveauTexte').textContent = n === 1 ? "On commence par les bases de l'argent."
+  $('#badge').textContent = n === 5 ? 'Parcours adulte' : 'Niveau ' + n;
+  nommerOnglet(n === 5 ? 'Outils' : 'Simulateur');
+  $('#pourquoiEnfant').classList.toggle('masque', n === 5);
+  $('#pourquoiAdulte').classList.toggle('masque', n !== 5);
+  $('#niveauTexte').textContent = n === 5 ? "On reprend les bases, à votre rythme : budget, épargne, crédit, placements."
+    : n === 1 ? "On commence par les bases de l'argent."
     : n === 2 ? "On découvre comment l'argent grandit."
     : n === 3 ? "On entre dans la bourse et les entreprises."
     : "On parle de vrais placements.";
@@ -1521,7 +1928,7 @@ function creerCompte(){
   var m1 = $('#nvMdp').value, m2 = $('#nvMdp2').value;
   var l = lireComptes();
   if (!prenomNormalise(prenom)){ etat.textContent = 'Écris un prénom.'; return; }
-  if (!(age >= 6 && age <= 25)){ etat.textContent = 'L\'âge doit être entre 6 et 25 ans.'; return; }
+  if (!(age >= 6 && age <= 99)){ etat.textContent = 'L\'âge doit être entre 6 et 99 ans.'; return; }
   if (m1.length < 4){ etat.textContent = 'Le mot de passe doit faire au moins 4 caractères.'; return; }
   if (m1 !== m2){ etat.textContent = 'Les deux mots de passe ne sont pas pareils.'; return; }
   if (l.length >= MAX_COMPTES){ etat.textContent = 'Il y a déjà ' + MAX_COMPTES + ' comptes sur ce téléphone.'; return; }
@@ -1614,7 +2021,7 @@ function verrouiller(){
   session = null;
   profil = null; faites = []; carnet = []; suivi = { code: '', url: '' }; jeux = {}; derniereSauvegarde = '';
   clearTimeout(minuterie);
-  ['#resumeCarnet', '#contenuLecon', '#rubanLecons', '#resultatSimu', '#zoneJeu'].forEach(function(s){ $(s).innerHTML = ''; });
+  ['#resumeCarnet', '#contenuLecon', '#rubanLecons', '#resultatSimu', '#zoneJeu', '#simuAdulte'].forEach(function(s){ $(s).innerHTML = ''; });
   ['#opLibelle', '#opMontant', '#codeEnfant', '#urlSuivi', '#chMdp', '#chMdp2', '#mdp', '#logPrenom', '#recPrenom', '#recCode', '#recMdp', '#recMdp2', '#parCode', '#parCode2', '#parAncien',
    '#parNouveau', '#parNouveau2', '#parSupPrenom', '#parSupCode', '#impPrenom', '#impMdp', '#fichierImport']
     .forEach(function(s){ $(s).value = ''; });
@@ -2325,8 +2732,8 @@ if (btnER) btnER.addEventListener('click', function(){
   var url = document.getElementById('urlSuivi').value.trim();
   var etat = document.getElementById('etatSuivi');
   var age = parseInt(document.getElementById('regAge').value, 10);
-  if (!(age >= 6 && age <= 25)) {
-    etat.textContent = 'L\'âge doit être entre 6 et 25 ans.';
+  if (!(age >= 6 && age <= 99)) {
+    etat.textContent = 'L\'âge doit être entre 6 et 99 ans.';
     return;
   }
   if (url && !RE_URL_SUIVI.test(url)) {
@@ -2338,7 +2745,7 @@ if (btnER) btnER.addEventListener('click', function(){
     return;
   }
   suivi = { code: code, url: url };
-  if (profil && profil.age !== age) { profil = { prenom: profil.prenom, age: age }; $('#ageSimu').value = age; dessinerAccueil(); }
+  if (profil && profil.age !== age) { profil = { prenom: profil.prenom, age: age }; $('#ageSimu').value = age; dessinerAccueil(); $('#simuAdulte').innerHTML = ''; leconActive = 0; }
   sauver();
   etat.textContent = suivi.url ? 'Réglages enregistrés.' : 'Réglages enregistrés. Aucune adresse : rien ne sera envoyé.';
 });
