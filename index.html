@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-fE441qseGwboitNgcN8GEH8OcNTlmbfyJNFRi3q0ltI='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://script.google.com https://script.googleusercontent.com; img-src 'self' data:; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-E7zwFan2IwhOuY5qUtw5Ky6NgZpbHosRqtplnvHJM5c='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://script.google.com https://script.googleusercontent.com; img-src 'self' data:; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Mon argent grandit</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -255,6 +255,15 @@ hr.fin{border:0;border-top:1px solid var(--trait);margin:16px 0}
 
   <!-- ===== ACCUEIL ===== -->
   <section id="vue-accueil" class="masque">
+    <div class="carte masque" id="carteInvitation" style="border-color:var(--or)">
+      <h3>Invitation au suivi</h3>
+      <p>Quelqu'un vous a envoyé un lien de suivi. Si vous acceptez, l'application lui enverra de temps en
+         temps <strong>votre prénom, votre âge, le nombre de leçons validées et les totaux de votre carnet</strong>.</p>
+      <p class="doux petit">Jamais le détail de vos lignes. Vous pourrez arrêter quand vous voulez dans Réglages,
+         en effaçant l'adresse de suivi.</p>
+      <div class="rangee"><button id="btnAccepterInv">J'accepte</button>
+        <button class="sobre" id="btnRefuserInv" style="flex:0 0 auto">Non merci</button></div>
+    </div>
     <div class="carte" id="carteProgres">
       <div class="rangee" style="align-items:flex-end">
         <div>
@@ -313,7 +322,7 @@ hr.fin{border:0;border-top:1px solid var(--trait);margin:16px 0}
         <label for="codeEnfant">Ton code personnel</label>
         <input id="codeEnfant" placeholder="ex. marie2026" autocomplete="off" maxlength="40">
         <label for="urlSuivi">Adresse de suivi (donnée par tes parents)</label>
-        <input id="urlSuivi" placeholder="https://script.google.com/.../exec" autocomplete="off" maxlength="200">
+        <input id="urlSuivi" placeholder="adresse du suivi, ou lien d'invitation complet" autocomplete="off" maxlength="400">
         <div style="margin-top:12px" class="rangee">
           <button id="btnEnregistrerReglages">Enregistrer</button>
           <button class="sobre" id="btnEnvoyer" style="flex:0 0 auto">Envoyer ma progression</button>
@@ -1763,13 +1772,273 @@ function jeuArnaque(){
   tour();
 }
 
+/* ============ Jeux adultes ============ */
+/* Quatre jeux pensés pour la vie d'adulte : tenir le mois, choisir un
+   crédit, placer selon son objectif, et un quiz sur l'argent dans l'UEMOA.
+   Les montants et rendements sont des exemples arrondis. */
+
+/* ---- 1. Tenir le mois ---- */
+var IMPREVUS = [
+  { t: 'Votre enfant est malade. Les soins et les médicaments coûtent 35 000 F.', c: [
+    { l: 'Je paie avec l\'argent du mois', dispo: -35000 },
+    { l: 'Je prends dans mon coussin de sécurité', coussin: -35000, si: 'coussin' },
+    { l: 'J\'emprunte au voisin, à rendre 45 000 F le mois prochain', dette: 45000, dispo: 0 }
+  ] },
+  { t: 'Cérémonie dans la famille : on attend 25 000 F de vous.', c: [
+    { l: 'Je donne 25 000 F', dispo: -25000 },
+    { l: 'Je donne 10 000 F, en expliquant avec respect que le mois est serré', dispo: -10000, note: 'Dit avec respect, c\'est presque toujours compris.' },
+    { l: 'J\'emprunte pour donner davantage, 40 000 F à rendre 50 000 F', dispo: -40000 + 40000, dette: 50000, note: 'S\'endetter pour une cérémonie pèse longtemps après la fête.' }
+  ] },
+  { t: 'La moto tombe en panne. Réparation : 40 000 F.', c: [
+    { l: 'Je paie avec l\'argent du mois', dispo: -40000 },
+    { l: 'Je prends dans mon coussin de sécurité', coussin: -40000, si: 'coussin' },
+    { l: 'Prêt rapide sur le téléphone : 52 000 F à rendre dans un mois', dette: 52000 }
+  ] },
+  { t: 'Un ami vous demande de lui prêter 50 000 F.', c: [
+    { l: 'Je prête les 50 000 F', dispo: -50000, pari: 50000 },
+    { l: 'Je donne 10 000 F, une somme que je peux me permettre de ne pas revoir', dispo: -10000, note: 'Prêter seulement ce qu\'on accepte de perdre protège l\'amitié et le budget.' },
+    { l: 'Je refuse poliment, en expliquant mon budget', note: 'Refuser poliment n\'est pas un manque de cœur.' }
+  ] },
+  { t: 'Promo dans un magasin : un téléviseur à crédit, 15 000 F par mois pendant 12 mois.', c: [
+    { l: 'J\'accepte', engagement: 180000, note: '180 000 F au total, pour un téléviseur qui vaut sans doute bien moins.' },
+    { l: 'Je refuse, j\'économiserai pour l\'acheter comptant', note: 'Acheter comptant coûte presque toujours moins cher.' }
+  ] },
+  { t: 'Bonne nouvelle : une prime inattendue de 30 000 F.', c: [
+    { l: 'Je la dépense pour me faire plaisir', dispo: 0, note: 'Un petit plaisir, ça se mérite aussi.' },
+    { l: 'J\'en mets la moitié dans mon coussin', dispo: 15000, coussin: 15000 },
+    { l: 'Je mets tout dans mon coussin', coussin: 30000 }
+  ] }
+];
+function jeuMois(){
+  var SALAIRE = 250000, CHARGES = 170000;
+  var e = { dispo: 0, coussin: 40000, dette: 0, engagement: 0, pari: 0, notes: [] };
+  zoneJeu().innerHTML = '<div class="carte">' + illustration('a-budget') + '<h3>Tenir le mois</h3>' +
+    '<p>Vous touchez <strong>250 000 F</strong>. Loyer, nourriture, transport et factures prennent déjà <strong>170 000 F</strong>. ' +
+    'Il vous reste 80 000 F, et vous avez 40 000 F dans votre coussin de sécurité.</p>' +
+    '<p><strong>Le jour de paie, combien mettez-vous de côté ?</strong></p><div class="choix">' +
+    [[0, 'Rien, on verra en fin de mois'], [25000, '25 000 F, soit 10 %'], [50000, '50 000 F, soit 20 %']].map(function(o){
+      return '<button data-v="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div></div>';
+  sur('.choix button', 'click', function(b){
+    var v = parseInt(b.dataset.v, 10);
+    e.coussin += v; e.dispo = SALAIRE - CHARGES - v; e.paye = v;
+    var cartes = melanger(IMPREVUS).slice(0, 4), k = 0;
+    function carte(){
+      if (k >= cartes.length) { bilan(); return; }
+      var c = cartes[k];
+      zoneJeu().innerHTML = '<div class="carte"><p class="doux petit">Semaine ' + (k + 1) + ' sur 4</p>' +
+        '<table><tr><td>Argent du mois</td><td class="' + (e.dispo < 0 ? 'rouge' : '') + '">' + f(e.dispo) + ' F</td></tr>' +
+        '<tr><td>Coussin de sécurité</td><td>' + f(e.coussin) + ' F</td></tr>' +
+        (e.dette ? '<tr><td>Dettes à rembourser</td><td class="rouge">' + f(e.dette) + ' F</td></tr>' : '') + '</table>' +
+        '<p style="margin-top:12px"><strong>' + esc(c.t) + '</strong></p><div class="choix">' +
+        c.c.map(function(o, j){
+          var off = o.si === 'coussin' && e.coussin + (o.coussin || 0) < 0;
+          return '<button data-j="' + j + '"' + (off ? ' disabled' : '') + '>' + esc(o.l) + (off ? ' (coussin insuffisant)' : '') + '</button>'; }).join('') +
+        '</div></div>';
+      sur('.choix button', 'click', function(b2){
+        var o = c.c[parseInt(b2.dataset.j, 10)];
+        e.dispo += o.dispo || 0; e.coussin += o.coussin || 0; e.dette += o.dette || 0;
+        e.engagement += o.engagement || 0; e.pari += o.pari || 0;
+        if (o.note) e.notes.push(o.note);
+        k++; carte();
+      });
+    }
+    carte();
+  });
+  function bilan(){
+    var rendu = e.pari && Math.random() < .5 ? e.pari : 0;
+    var decouvert = e.dispo < 0 ? Math.round(-e.dispo * 1.3) : 0;
+    if (decouvert) { e.dette += decouvert; e.dispo = 0; }
+    e.dispo += rendu;
+    var net = e.dispo + e.coussin - e.dette - e.engagement;
+    var sain = e.dette === 0 && e.engagement === 0;
+    var n = sain && !decouvert && e.paye > 0 ? 3 : sain ? 2 : net > 0 ? 1 : 0;
+    finirJeu('mois', n, '<h3>Fin du mois</h3><table>' +
+      '<tr><td>Argent du mois restant</td><td>' + f(e.dispo) + ' F</td></tr>' +
+      '<tr><td>Coussin de sécurité</td><td class="vert">' + f(e.coussin) + ' F</td></tr>' +
+      '<tr><td>Dettes à rembourser</td><td class="' + (e.dette ? 'rouge' : '') + '">' + f(e.dette) + ' F</td></tr>' +
+      (e.engagement ? '<tr><td>Crédit en cours (téléviseur)</td><td class="rouge">' + f(e.engagement) + ' F</td></tr>' : '') +
+      '</table>' +
+      (decouvert ? '<p class="rouge" style="margin-top:10px">Vous avez fini le mois à découvert : il a fallu emprunter, et ça coûte 30 % de plus.</p>' : '') +
+      (e.pari ? '<p style="margin-top:10px">Votre ami ' + (rendu ? 'vous a rendu les 50 000 F. Tant mieux !' : 'n\'a pas pu vous rendre les 50 000 F ce mois-ci.') + '</p>' : '') +
+      e.notes.map(function(t){ return '<p class="doux petit" style="margin:6px 0 0">' + esc(t) + '</p>'; }).join('') +
+      '<p style="margin-top:12px">Ce qui sauve un mois difficile : un coussin de sécurité, et de l\'épargne mise de côté dès le jour de paie.</p>');
+  }
+}
+
+/* ---- 2. Choisir son crédit ---- */
+var SITUATIONS_CREDIT = [
+  { t: 'Vous voulez 600 000 F pour acheter du stock pour votre boutique. Vous gagnez 200 000 F par mois.', P: 600000, rev: 200000,
+    o: [{ n: 'Banque : 13 % par an, 12 mois, frais de dossier 1 %', an: .13, mois: 12, frais: .01 },
+        { n: 'Microfinance : 2 % par mois, 12 mois', mensuel: .02, mois: 12 },
+        { n: 'Prêt rapide sur appli : 10 % par mois, 3 mois', mensuel: .10, mois: 3 }] },
+  { t: 'Vous voulez 1 500 000 F pour une moto-taxi qui vous fera gagner votre vie. Vous gagnez 250 000 F par mois.', P: 1500000, rev: 250000,
+    o: [{ n: 'Banque : 12 % par an, 24 mois, frais de dossier 2 %', an: .12, mois: 24, frais: .02 },
+        { n: 'Banque : 12 % par an, 12 mois, sans frais', an: .12, mois: 12 },
+        { n: 'Microfinance : 1,5 % par mois, 24 mois', mensuel: .015, mois: 24 }] },
+  { t: 'Vous voulez 800 000 F pour une grande fête de mariage. Vous gagnez 150 000 F par mois.', P: 800000, rev: 150000, consommation: true,
+    o: [{ n: 'Microfinance : 2 % par mois, 12 mois', mensuel: .02, mois: 12 },
+        { n: 'Prêt rapide sur appli : 10 % par mois, 3 mois', mensuel: .10, mois: 3 },
+        { n: 'Banque : 14 % par an, 24 mois', an: .14, mois: 24 }] }
+];
+function calculOffre(P, o){
+  var r = o.mensuel || o.an / 12, m = P * r / (1 - Math.pow(1 + r, -o.mois));
+  return { m: m, total: m * o.mois + P * (o.frais || 0) };
+}
+function jeuCredit(){
+  var i = 0, points = 0;
+  function tour(){
+    if (i >= SITUATIONS_CREDIT.length) {
+      var n = points >= 3 ? 3 : points >= 2 ? 2 : points >= 1 ? 1 : 0;
+      finirJeu('credit', n, '<h3>' + points + ' bon(s) choix sur 3</h3><p>Pour choisir un crédit : la mensualité doit rester sous le tiers du revenu, ' +
+        'puis on compare le <strong>total remboursé</strong>, pas seulement le taux affiché. Et pour une dépense de consommation, épargner d\'abord est presque toujours mieux.</p>');
+      return;
+    }
+    var s = SITUATIONS_CREDIT[i], lim = s.rev / 3;
+    var calc = s.o.map(function(o){ return calculOffre(s.P, o); });
+    var ok = calc.map(function(c){ return c.m <= lim; });
+    var meilleur = -1;
+    calc.forEach(function(c, j){ if (ok[j] && (meilleur < 0 || c.total < calc[meilleur].total)) meilleur = j; });
+    var bonne = s.consommation ? 3 : meilleur;
+    var options = s.o.map(function(o){ return o.n; }).concat([s.consommation ? 'Je n\'emprunte pas : j\'épargne quelques mois et je fais une fête plus simple' : 'Je n\'emprunte pas']);
+    zoneJeu().innerHTML = '<div class="carte"><p class="doux petit">Situation ' + (i + 1) + ' sur 3</p><p><strong>' + esc(s.t) + '</strong></p>' +
+      '<p class="doux petit">Rappel : vos remboursements ne devraient pas dépasser environ ' + f(lim) + ' F par mois.</p>' +
+      '<div class="choix">' + options.map(function(t, j){ return '<button data-j="' + j + '">' + esc(t) + '</button>'; }).join('') + '</div><div id="jExp"></div></div>';
+    sur('.choix button', 'click', function(b){
+      var j = parseInt(b.dataset.j, 10);
+      var gagne = j === bonne ? 1 : (s.consommation && j === meilleur ? .5 : 0);
+      points += gagne;
+      zoneJeu().querySelectorAll('.choix button').forEach(function(x, k){ x.disabled = true; if (k === bonne) x.classList.add('bon'); });
+      if (j !== bonne) b.classList.add('faux');
+      $('#jExp').innerHTML = '<table style="margin-top:10px">' + s.o.map(function(o, k){
+          return '<tr><td>' + esc(o.n.split(' :')[0]) + ' (' + o.mois + ' mois)</td><td class="' + (ok[k] ? '' : 'rouge') + '">' +
+            f(calc[k].m) + ' F/mois · total ' + f(calc[k].total) + ' F</td></tr>'; }).join('') + '</table>' +
+        '<p class="doux petit" style="margin-top:8px">' + (s.consommation
+          ? 'Une fête ne rapporte rien : un crédit ici coûte au moins ' + f(calc[2].total - s.P) + ' F et pèse pendant des mois.'
+          : 'En rouge, les mensualités au-dessus du tiers du revenu. Parmi les autres, la moins chère au total est la bonne.') + '</p>' +
+        '<button id="jSuite">Continuer</button>';
+      $('#jSuite').addEventListener('click', function(){ i++; tour(); });
+    });
+  }
+  tour();
+}
+
+/* ---- 3. Placer selon son objectif ---- */
+var SUPPORTS = [
+  { k: 'ep', n: 'Compte d\'épargne', moy: .03, ecart: 0 },
+  { k: 'ob', n: 'Obligations d\'État', moy: .06, ecart: .01 },
+  { k: 'fcp', n: 'FCP diversifié', moy: .07, ecart: .08 },
+  { k: 'ac', n: 'Actions BRVM', moy: .10, ecart: .20 }
+];
+var PROFILS = [
+  { t: 'Vous n\'avez encore aucune épargne de côté. Objectif : payer la rentrée scolaire dans 8 mois.', ans: 1,
+    test: function(a){ return a.ep >= 70 && a.ac <= 10; },
+    exp: 'Argent nécessaire bientôt, et pas de coussin : il doit rester sûr et disponible. Surtout pas en actions.' },
+  { t: 'Votre coussin de sécurité est en place. Objectif : votre retraite, dans 25 ans.', ans: 25,
+    test: function(a){ return a.ac + a.fcp >= 60; },
+    exp: 'Sur 25 ans, les hauts et les bas s\'effacent. Actions et FCP ont le temps de travailler.' },
+  { t: 'Votre coussin est en place. Objectif : acheter un terrain dans 4 ans.', ans: 4,
+    test: function(a){ return a.ob + a.ep >= 50 && a.ac <= 30; },
+    exp: 'Quatre ans, c\'est moyen : surtout des obligations, au rendement connu, et un peu de FCP ou d\'actions.' }
+];
+function aleaNormal(){ var u = 1 - Math.random(), v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+function jeuPlacement(){
+  var i = 0, bons = 0;
+  function tour(){
+    if (i >= PROFILS.length) {
+      finirJeu('placement', bons, '<h3>' + bons + ' objectif(s) bien servis sur 3</h3><p>Il n\'y a pas de meilleur placement en général : ' +
+        'il y a le bon placement <strong>pour un objectif et une durée</strong>. Argent proche : sûr. Argent lointain : il peut prendre plus de risques.</p>' +
+        '<p class="doux petit">Rendements imaginaires mais réalistes, tirés au hasard à chaque partie.</p>');
+      return;
+    }
+    var pr = PROFILS[i], a = { ep: 25, ob: 25, fcp: 25, ac: 25 };
+    function dessiner(){
+      var total = a.ep + a.ob + a.fcp + a.ac;
+      zoneJeu().innerHTML = '<div class="carte"><p class="doux petit">Situation ' + (i + 1) + ' sur 3</p><p><strong>' + esc(pr.t) + '</strong></p>' +
+        '<p>Répartissez <strong>1 000 000 F</strong> :</p><table>' + SUPPORTS.map(function(s){
+          return '<tr><td>' + esc(s.n) + '</td><td><span class="rangee" style="justify-content:flex-end;gap:6px;flex-wrap:nowrap">' +
+            '<button class="sobre" data-k="' + s.k + '" data-d="-10" style="padding:4px 10px">−</button><strong style="min-width:44px;text-align:center">' + a[s.k] + ' %</strong>' +
+            '<button class="sobre" data-k="' + s.k + '" data-d="10" style="padding:4px 10px">+</button></span></td></tr>'; }).join('') +
+        '</table><p class="' + (total === 100 ? 'vert' : 'alerte') + ' petit">Total : ' + total + ' %</p>' +
+        '<button id="jValider"' + (total === 100 ? '' : ' disabled') + '>Placer</button></div>';
+      sur('button[data-k]', 'click', function(b){
+        var k = b.dataset.k, d = parseInt(b.dataset.d, 10);
+        if (d > 0 && total >= 100) return;
+        a[k] = Math.max(0, Math.min(100, a[k] + d)); dessiner();
+      });
+      $('#jValider').addEventListener('click', function(){
+        var v = 0, pire = 0;
+        SUPPORTS.forEach(function(s){
+          var x = 1000000 * a[s.k] / 100;
+          for (var y = 0; y < pr.ans; y++) {
+            var r = s.moy + s.ecart * aleaNormal();
+            if (pr.ans === 1) r = r * 8 / 12;
+            x *= 1 + r;
+            if (r < pire) pire = r;
+          }
+          v += x;
+        });
+        var ok = pr.test(a); if (ok) bons++;
+        zoneJeu().innerHTML = '<div class="carte"><h3 class="' + (ok ? 'vert' : 'rouge') + '">' + (ok ? 'Bien adapté à l\'objectif' : 'Pas adapté à cet objectif') + '</h3>' +
+          '<table><tr><td>Valeur à l\'échéance</td><td>' + f(v) + ' F</td></tr>' +
+          '<tr><td>Pire année d\'un de vos placements</td><td class="' + (pire < 0 ? 'rouge' : '') + '">' + Math.round(pire * 100) + ' %</td></tr></table>' +
+          '<p style="margin-top:10px">' + esc(pr.exp) + '</p><button id="jSuite">Continuer</button></div>';
+        $('#jSuite').addEventListener('click', function(){ i++; tour(); });
+      });
+    }
+    dessiner();
+  }
+  tour();
+}
+
+/* ---- 4. Quiz : l'argent dans l'UEMOA ---- */
+var QUIZ_UEMOA_ADULTE = [
+  { q: 'Combien vaut 1 euro en francs CFA de l\'UEMOA ?', r: ['Ça change tous les jours', '655,957 F, une parité fixe', '1 000 F'], bon: 1,
+    exp: 'La parité est fixe : 1 € = 655,957 F CFA. Ce lien stable limite l\'inflation importée.' },
+  { q: 'Qui agrée et surveille les SGI et les sociétés de gestion de FCP ?', r: ['La BCEAO', 'L\'AMF-UMOA', 'La BRVM'], bon: 1,
+    exp: 'L\'AMF-UMOA est le gendarme du marché financier régional. Sa liste d\'acteurs agréés est publique.' },
+  { q: 'La BOAD, basée à Lomé, sert à :', r: ['Imprimer les billets', 'Financer des projets de développement dans l\'Union', 'Gérer la bourse'], bon: 1,
+    exp: 'La Banque Ouest-Africaine de Développement finance routes, énergie, agriculture… dans les 8 pays.' },
+  { q: 'Quand la BCEAO relève son taux directeur, en général :', r: ['Les crédits deviennent plus chers', 'Les prix baissent tout de suite', 'Les actions doublent'], bon: 0,
+    exp: 'Les banques empruntent plus cher et répercutent sur leurs prêts. C\'est un frein contre la hausse des prix.' },
+  { q: 'Quand un État de l\'UEMOA lance un emprunt obligataire ouvert au public :', r: ['Il vend des parts de lui-même', 'Le public lui prête, contre un intérêt fixé à l\'avance', 'C\'est réservé aux banques'], bon: 1,
+    exp: 'Vous prêtez à l\'État par l\'intermédiaire d\'une SGI, avec un taux et une durée connus dès le départ.' },
+  { q: 'En général, une entreprise de la BRVM verse son dividende :', r: ['Chaque semaine', 'Une fois par an', 'Jamais'], bon: 1,
+    exp: 'Le plus souvent une fois par an, après l\'assemblée générale, vers le milieu de l\'année.' }
+];
+function jeuQuizAdulte(){
+  var liste = QUIZ_UEMOA_ADULTE, i = 0, bons = 0;
+  function tour(){
+    if (i >= liste.length) {
+      finirJeu('quiz-uemoa', bons >= 6 ? 3 : bons >= 5 ? 2 : bons >= 3 ? 1 : 0,
+        '<h3>' + bons + ' sur ' + liste.length + '</h3><p>BCEAO pour la monnaie et les banques, AMF-UMOA pour le marché financier, ' +
+        'BRVM pour la bourse, BOAD pour le développement. Connaître ces quatre noms, c\'est déjà savoir à qui faire confiance.</p>');
+      return;
+    }
+    var q = liste[i];
+    zoneJeu().innerHTML = '<div class="carte"><p class="doux petit">Question ' + (i + 1) + ' sur ' + liste.length + '</p><p><strong>' + esc(q.q) + '</strong></p>' +
+      '<div class="choix">' + q.r.map(function(r, j){ return '<button data-j="' + j + '">' + esc(r) + '</button>'; }).join('') + '</div><div id="jExp"></div></div>';
+    sur('.choix button', 'click', function(b){
+      var j = parseInt(b.dataset.j, 10), ok = j === q.bon; if (ok) bons++;
+      zoneJeu().querySelectorAll('.choix button').forEach(function(x, k){ x.disabled = true; if (k === q.bon) x.classList.add('bon'); });
+      if (!ok) b.classList.add('faux');
+      $('#jExp').innerHTML = '<p class="doux petit">' + esc(q.exp) + '</p><button id="jSuite">Continuer</button>';
+      $('#jSuite').addEventListener('click', function(){ i++; tour(); });
+    });
+  }
+  tour();
+}
+
 /* ---- Catalogue des jeux ---- */
 var JEUX = [
   { cle: 'monnaie', age: 7, max: 14, titre: 'Rends la monnaie', resume: 'Tu tiens une petite boutique. Rends la monnaie juste à chaque client.', lancer: jeuMonnaie },
   { cle: 'marche', age: 7, max: 15, titre: 'Ta semaine avec 3 000 F', resume: 'Transport, goûter, bonbons… Besoin ou envie ? Fais tenir ta semaine.', lancer: jeuMarche },
-  { cle: 'uemoa', age: 9, titre: 'UEMOA et BCEAO', resume: 'Les 8 pays du franc CFA, la BCEAO, la BRVM : qui fait quoi ?', lancer: jeuUemoa },
-  { cle: 'tontine', age: 10, titre: 'La tontine du quartier', resume: 'Cinq amis, une caisse commune. Choisis ta semaine et découvre les risques.', lancer: jeuTontine },
-  { cle: 'bissap', age: 11, titre: 'Le jus de bissap à la récré', resume: 'Prépare, fixe ton prix, vends. Recette, coûts, bénéfice.', lancer: jeuBissap },
+  { cle: 'uemoa', age: 9, max: 17, titre: 'UEMOA et BCEAO', resume: 'Les 8 pays du franc CFA, la BCEAO, la BRVM : qui fait quoi ?', lancer: jeuUemoa },
+  { cle: 'tontine', age: 10, max: 17, titre: 'La tontine du quartier', resume: 'Cinq amis, une caisse commune. Choisis ta semaine et découvre les risques.', lancer: jeuTontine },
+  { cle: 'bissap', age: 11, max: 17, titre: 'Le jus de bissap à la récré', resume: 'Prépare, fixe ton prix, vends. Recette, coûts, bénéfice.', lancer: jeuBissap },
+  { cle: 'mois', age: 18, titre: 'Tenir le mois', resume: 'Salaire, charges, imprévus, famille, crédit tentant. Arriverez-vous au bout du mois sans dette ?', lancer: jeuMois },
+  { cle: 'credit', age: 18, titre: 'Choisir son crédit', resume: 'Trois besoins, des offres de banque, de microfinance et d\'applis. Laquelle coûte vraiment le moins ?', lancer: jeuCredit },
+  { cle: 'placement', age: 18, titre: 'Placer selon son objectif', resume: 'Rentrée scolaire, terrain, retraite : répartissez 1 000 000 F entre épargne, obligations, FCP et actions.', lancer: jeuPlacement },
+  { cle: 'quiz-uemoa', age: 18, titre: 'L\'argent dans l\'UEMOA', resume: 'Parité avec l\'euro, BCEAO, AMF-UMOA, BOAD, obligations d\'État : le quiz des adultes.', lancer: jeuQuizAdulte },
   { cle: 'arnaque', age: 13, titre: 'Vrai placement ou arnaque ?', resume: 'Huit offres qu\'on reçoit vraiment. Saurez-vous repérer les pièges ?', lancer: jeuArnaque }
 ];
 function jeuxDisponibles(){
@@ -1777,7 +2046,7 @@ function jeuxDisponibles(){
   return JEUX.filter(function(j){ return a >= j.age && a <= (j.max || 120); });
 }
 function dessinerJeux(){
-  var h = '<h2>Jouer pour apprendre</h2>';
+  var h = '<h2>' + (estAdulte() ? 'Jeux du parcours adulte' : 'Jouer pour apprendre') + '</h2>';
   jeuxDisponibles().forEach(function(j){
     h += '<div class="carte"><div class="rangee" style="align-items:flex-start"><div><h3>' + esc(j.titre) + '</h3>' +
       '<p class="doux petit" style="margin:0">' + esc(j.resume) + '</p></div>' +
@@ -2013,6 +2282,8 @@ function ouvrirSession(id, cle, o){
   dessinerAccueil();
   montrer('accueil');
   relancerMinuterie();
+  afficherInvitation();
+  setTimeout(envoiQuotidien, 1500);
 }
 
 /* Verrouillage : on oublie la clé et toutes les données en mémoire, et on
@@ -2731,6 +3002,8 @@ if (btnER) btnER.addEventListener('click', function(){
   var code = document.getElementById('codeEnfant').value.trim();
   var url = document.getElementById('urlSuivi').value.trim();
   var etat = document.getElementById('etatSuivi');
+  var invColle = lireInvitation(url);
+  if (invColle) { url = invColle.url; code = invColle.code; }
   var age = parseInt(document.getElementById('regAge').value, 10);
   if (!(age >= 6 && age <= 99)) {
     etat.textContent = 'L\'âge doit être entre 6 et 99 ans.';
@@ -2789,6 +3062,64 @@ $('#btnTheme').addEventListener('click', function(){
 });
 var th = E.lire('theme', null);
 if (th === 'dark' || th === 'light') document.documentElement.setAttribute('data-theme', th);
+
+/* ============ Lien d'invitation au suivi ============ */
+/* Le lien ressemble à :
+     https://moyesah.github.io/mon-argent-grandit/#suivi=<adresse du script>&code=<code>
+   La partie après # n'est jamais envoyée à GitHub : elle reste dans le
+   navigateur. On la lit, on l'efface de la barre d'adresse, et on la garde
+   en attente jusqu'à ce que la personne se connecte et accepte. */
+function lireInvitation(texte){
+  var i = String(texte || '').indexOf('#');
+  if (i < 0) return null;
+  var p = new URLSearchParams(String(texte).slice(i + 1));
+  var url = (p.get('suivi') || '').trim(), code = (p.get('code') || '').trim();
+  return RE_URL_SUIVI.test(url) && RE_CODE.test(code) ? { url: url, code: code } : null;
+}
+function traiterLien(){
+  var inv = lireInvitation(location.hash);
+  if (inv) E.ecrire('invitation', inv);
+  if (location.hash) { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
+  if (inv && session) afficherInvitation();
+}
+traiterLien();
+// Lien ouvert alors que l'application est déjà ouverte dans cet onglet.
+window.addEventListener('hashchange', traiterLien);
+function invitationEnAttente(){
+  var inv = E.lire('invitation', null);
+  return inv && RE_URL_SUIVI.test(inv.url) && RE_CODE.test(inv.code) ? inv : null;
+}
+function afficherInvitation(){
+  var inv = invitationEnAttente();
+  var deja = inv && suivi.url === inv.url && suivi.code === inv.code;
+  if (deja) E.effacer('invitation');
+  $('#carteInvitation').classList.toggle('masque', !inv || deja);
+}
+$('#btnAccepterInv').addEventListener('click', function(){
+  var inv = invitationEnAttente();
+  if (!inv || !session) return;
+  suivi = { code: inv.code, url: inv.url };
+  E.effacer('invitation');
+  sauver();
+  $('#carteInvitation').classList.add('masque');
+  dernierEnvoiMs = 0;
+  E.ecrire('envoi_' + session.id, Date.now());
+  envoyerProgression(false);
+});
+$('#btnRefuserInv').addEventListener('click', function(){
+  E.effacer('invitation');
+  $('#carteInvitation').classList.add('masque');
+});
+
+/* Envoi discret une fois par jour à l'ouverture, pour que le suivi voie la
+   régularité même les jours sans leçon validée. */
+function envoiQuotidien(){
+  if (!session || !suivi.url || !suivi.code) return;
+  var cle = 'envoi_' + session.id, der = Number(E.lire(cle, 0)) || 0;
+  if (Date.now() - der < 20 * 3600 * 1000 || !navigator.onLine) return;
+  E.ecrire(cle, Date.now());
+  envoyerProgression(false);
+}
 
 /* ============ Hors ligne ============ */
 /* Le service worker garde une copie de l'application sur l'appareil : après
